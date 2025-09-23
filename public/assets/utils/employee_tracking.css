@@ -1,0 +1,342 @@
+ :root {
+     --bg: #f9fafb;
+     --card: #ffffff;
+     --primary: #2563eb;
+     --primary-dark: #1e40af;
+     --danger: #dc2626;
+     --success: #16a34a;
+     --border: #d1d5db;
+     --text: #111827;
+     --muted: #6b7280;
+     --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+ }
+
+ @media (prefers-color-scheme: dark) {
+     :root {
+         --bg: #0f172a;
+         --card: #1e293b;
+         --primary: #3b82f6;
+         --primary-dark: #2563eb;
+         --danger: #ef4444;
+         --success: #22c55e;
+         --border: #334155;
+         --text: #f1f5f9;
+         --muted: #94a3b8;
+         --shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+     }
+ }
+
+ * {
+     box-sizing: border-box;
+ }
+
+ body {
+     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+     background: var(--bg);
+     color: var(--text);
+     margin: 0;
+     padding: 20px;
+     line-height: 1.5;
+ }
+
+ .container {
+     max-width: 1200px;
+     margin: 0 auto;
+     justify-content: center;
+ }
+
+ h3 {
+     text-align: center;
+     font-size: 1.8rem;
+     margin-bottom: 10px;
+     color: var(--primary);
+     font-weight: 700;
+ }
+
+ h4 {
+     font-size: 1.2rem;
+     color: var(--muted);
+     margin: 30px 0 15px;
+     border-bottom: 2px solid var(--border);
+     padding-bottom: 8px;
+     font-weight: 600;
+ }
+
+ .form-container {
+     background: var(--card);
+     padding: 24px;
+     border: 1px solid var(--border);
+     border-radius: 12px;
+     margin: 0 auto 30px;
+     box-shadow: var(--shadow);
+ }
+
+ .form-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+     gap: 20px;
+     align-items: start;
+ }
+
+ .form-group {
+     display: flex;
+     flex-direction: column;
+     gap: 6px;
+ }
+
+ .form-group.full-width {
+     grid-column: 1 / -1;
+ }
+
+ label {
+     font-weight: 600;
+     color: var(--text);
+     font-size: 14px;
+ }
+
+ input,
+ select,
+ textarea {
+     width: 100%;
+     padding: 12px;
+     border: 1px solid var(--border);
+     border-radius: 8px;
+     font-size: 14px;
+     background: var(--card);
+     color: var(--text);
+     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+ }
+
+ input:focus,
+ select:focus,
+ textarea:focus {
+     border-color: var(--primary);
+     outline: none;
+     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+ }
+
+ textarea {
+     resize: vertical;
+     min-height: 80px;
+ }
+
+ .btn {
+     background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+     color: white;
+     font-weight: 600;
+     cursor: pointer;
+     padding: 12px 24px;
+     border: none;
+     border-radius: 8px;
+     transition: all 0.2s ease;
+     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+     font-size: 14px;
+ }
+
+ .btn:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+ }
+
+ .btn-small {
+     padding: 8px 16px;
+     font-size: 12px;
+ }
+
+ .btn-danger {
+     background: linear-gradient(180deg, var(--danger) 0%, #b91c1c 100%);
+     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+ }
+
+ .btn-danger:hover {
+     box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35);
+ }
+
+ .table-container {
+     background: var(--card);
+     border-radius: 12px;
+     overflow: hidden;
+     box-shadow: var(--shadow);
+     margin-bottom: 30px;
+ }
+
+ .table-scroll {
+     overflow-x: auto;
+ }
+
+ table {
+     width: 100%;
+     border-collapse: collapse;
+     min-width: 800px;
+ }
+
+ th,
+ td {
+     padding: 16px 12px;
+     text-align: left;
+     border-bottom: 1px solid var(--border);
+     font-size: 14px;
+     vertical-align: top;
+ }
+
+ th {
+     background: var(--primary);
+     color: white;
+     font-weight: 700;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     font-size: 12px;
+     position: sticky;
+     top: 0;
+     z-index: 10;
+ }
+
+ tbody tr:hover {
+     background: rgba(37, 99, 235, 0.06);
+     transition: background 0.2s ease;
+ }
+
+ .update-form {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+     gap: 8px;
+     align-items: center;
+     min-width: 500px;
+ }
+
+ .update-form input,
+ .update-form select {
+     padding: 6px 8px;
+     font-size: 12px;
+     min-width: 100px;
+ }
+
+ .update-form .btn {
+     grid-column: 1 / -1;
+     justify-self: start;
+     margin-top: 8px;
+ }
+
+ .status-badge {
+     display: inline-block;
+     padding: 4px 8px;
+     border-radius: 12px;
+     font-size: 11px;
+     font-weight: 600;
+     text-transform: uppercase;
+     letter-spacing: 0.3px;
+ }
+
+ .status-job_order {
+     background: #fef3c7;
+     color: #92400e;
+ }
+
+ .status-permanent {
+     background: #d1fae5;
+     color: #065f46;
+ }
+
+ .status-temporary {
+     background: #dbeafe;
+     color: #1e40af;
+ }
+
+ .status-contractual {
+     background: #fce7f3;
+     color: #be185d;
+ }
+
+ @media print {
+     body * {
+         visibility: hidden;
+     }
+
+     .print-area,
+     .print-area * {
+         visibility: visible;
+     }
+
+     .print-area {
+         position: absolute;
+         left: 0;
+         top: 0;
+         width: 100%;
+     }
+
+     .no-print {
+         display: none !important;
+     }
+ }
+
+ @media (max-width: 768px) {
+     body {
+         padding: 10px;
+     }
+
+     .form-grid {
+         grid-template-columns: 1fr;
+         gap: 15px;
+     }
+
+     h3 {
+         font-size: 1.5rem;
+     }
+
+     .form-container {
+         padding: 20px 16px;
+     }
+
+     th,
+     td {
+         padding: 12px 8px;
+         font-size: 13px;
+     }
+
+     .update-form {
+         grid-template-columns: 1fr;
+         gap: 6px;
+     }
+
+     .update-form input,
+     .update-form select {
+         min-width: auto;
+     }
+ }
+
+ @media (max-width: 480px) {
+     .table-scroll {
+         font-size: 12px;
+     }
+
+     th,
+     td {
+         padding: 8px 6px;
+     }
+ }
+
+ @media (prefers-color-scheme: dark) {
+     tbody tr:hover {
+         background: rgba(59, 130, 246, 0.1);
+     }
+
+     .status-job_order {
+         background: #451a03;
+         color: #fbbf24;
+     }
+
+     .status-permanent {
+         background: #064e3b;
+         color: #34d399;
+     }
+
+     .status-temporary {
+         background: #1e3a8a;
+         color: #60a5fa;
+     }
+
+     .status-contractual {
+         background: #831843;
+         color: #f472b6;
+     }
+ }
