@@ -23,10 +23,10 @@ $log = db()->query("
 <h3>Messages</h3>
 <form method="post">
   <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
-  <label>Recipient UID <input name="recipient_uid" required></label><br>
-  <label>Type <input name="type" value="general"></label><br>
-  <label>Subject <input name="subject" required></label><br>
-  <label>Body <textarea name="body" required></textarea></label><br>
+  <label>Recipient UID <input name="recipient_uid" required></label>    
+  <label>Type <input name="type" value="general"></label>
+  <label>Subject <input name="subject" required></label>
+  <label>Body <textarea name="body" required></textarea></label>
   <button>Send</button>
 </form>
 </div>

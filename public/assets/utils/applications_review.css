@@ -1,74 +1,64 @@
 :root {
-  --bg: #0f172a;           
-  --bg-2: #111827;        
-  --card: #0b1220;        
-  --text: #e5e7eb;         
-  --muted: #9ca3af;        
-  --border: #293449;       
+  --bg: #0f172a;
+  --bg-2: #111827;
+  --card: #0b1220;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --border: #293449;
   --input: #0b1220;
-  --ring: #60a5fa;         
-  --primary: #3b82f6;      
-  --primary-600: #2563eb;  
-  --danger: #ef4444;      
-  --success: #10b981;      
-  --shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f1f5f9;         
-    --bg-2: #f8fafc;      
-    --card: #ffffff;
-    --text: #0f172a;      
-    --muted: #475569;      
-    --border: #e2e8f0;     
-    --input: #ffffff;
-    --ring: #2563eb;
-    --shadow: 0 10px 30px rgba(2,6,23,0.08);
-  }
+  --ring: #60a5fa;
+  --primary: #3b82f6;
+  --primary-600: #2563eb;
+  --danger: #ef4444;
+  --success: #10b981;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35),
+             inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 *,
 *::before,
-*::after { box-sizing: border-box; }
-
-html, body {
-  min-height: 100vh;
-  margin: 0;
-  overflow-x: hidden;
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
   color: var(--text);
   background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,0.15), transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, rgba(99,102,241,0.12), transparent 60%),
+    radial-gradient(1200px 600px at 10% -10%, rgba(59, 130, 246, 0.15), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(99, 102, 241, 0.12), transparent 60%),
     linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+  min-height: 100vh;
+  margin: 0;
   padding: 40px 16px;
   line-height: 1.6;
 }
 
 h3 {
-  font-size: 1.7rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
   text-align: center;
   color: var(--text);
-  filter: drop-shadow(0 1px 0 rgba(255,255,255,0.05));
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.05));
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  max-width: 1100px;
+  margin: 0 auto;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
 }
 
 table {
   width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
   border-collapse: collapse;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: var(--shadow);
-  animation: fadeInUp .6s ease both;
+  animation: fadeInUp 0.6s ease both;
 }
 
 table th {
@@ -87,6 +77,7 @@ table td {
   font-size: 0.95rem;
   color: var(--text);
   transition: background 0.2s ease;
+  vertical-align: middle;
 }
 
 table tr:nth-child(even) td {
@@ -95,6 +86,30 @@ table tr:nth-child(even) td {
 
 table tr:hover td {
   background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+input[type="text"],
+input[type="number"],
+input[name="reason"] {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--text);
+  font-size: 0.9rem;
+  margin-right: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 60%, transparent);
+}
+
+input.rank-input {
+  width: 55px;
+  text-align: center;
 }
 
 button {
@@ -107,14 +122,14 @@ button {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.2s ease;
   box-shadow: 0 8px 16px rgba(37, 99, 235, 0.25),
-              inset 0 1px 0 rgba(255,255,255,0.15);
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 button:hover {
   filter: brightness(1.05);
   transform: translateY(-2px);
   box-shadow: 0 10px 22px rgba(37, 99, 235, 0.3),
-              inset 0 1px 0 rgba(255,255,255,0.2);
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 button:active {
@@ -125,52 +140,59 @@ button[value="reject"] {
   background: linear-gradient(180deg, var(--danger) 0%, #b91c1c 100%);
   border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
   box-shadow: 0 8px 16px rgba(239, 68, 68, 0.25),
-              inset 0 1px 0 rgba(255,255,255,0.1);
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 button[value="reject"]:hover {
   box-shadow: 0 10px 22px rgba(239, 68, 68, 0.3),
-              inset 0 1px 0 rgba(255,255,255,0.15);
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-input[type="text"],
-input[name="reason"] {
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--input);
-  color: var(--text);
-  font-size: 0.9rem;
-  margin-right: 6px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+button.save-rank {
+  background: linear-gradient(180deg, var(--success) 0%, #059669 100%);
+  border-color: color-mix(in srgb, var(--success) 40%, var(--border));
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.25),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 5px 10px;
+  font-size: 0.85rem;
 }
 
-input[type="text"]:focus,
-input[name="reason"]:focus {
-  outline: none;
-  border-color: var(--ring);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 60%, transparent);
+button.save-rank:hover {
+  box-shadow: 0 10px 22px rgba(16, 185, 129, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@media print {
-  body * {
-    visibility: hidden;
+@media (max-width: 768px) {
+  table th, table td {
+    font-size: 0.85rem;
+    padding: 10px 12px;
   }
-  .print-area, .print-area * {
-    visibility: visible;
+  input[name="reason"] {
+    width: 120px;
   }
-  .print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-  }
-  .no-print {
-    display: none !important;
+  button {
+    padding: 5px 10px;
+    font-size: 0.8rem;
   }
 }

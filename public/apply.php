@@ -15,10 +15,9 @@ $resume = isset($_FILES['resume']) ? accept_upload($_FILES['resume'], 'resumes')
 $cover  = isset($_FILES['cover_letter']) ? accept_upload($_FILES['cover_letter'], 'cover_letters') : null;
 $req    = isset($_FILES['requirements']) ? accept_upload($_FILES['requirements'], 'requirements') : null;
 
-// store requirements_docs as a JSON array (so applications_review can decode it reliably)
 $req_json = null;
 if ($req !== null) {
-    $req_json = json_encode([$req]); // wrap single path into array
+    $req_json = json_encode([$req]); 
 }
 
 db()->prepare("
@@ -26,7 +25,6 @@ db()->prepare("
     VALUES (?,?,?,?,?)
 ")->execute([$vacancy_id, $uid, $resume, $cover, $req_json]);
 
-// Notify applicant
 notify_user(
     $uid, 
     'application_submission', 

@@ -2,13 +2,10 @@
 require_once __DIR__ . '/../src/init.php';
 $u = current_user();
 
-// redirect if not logged in
 if (!$u) {
     header("Location: index.php");
     exit;
 }
-
-// determine which page to load
 $allowed_pages = [
     'vacancies',
     'applications_review',
@@ -17,7 +14,10 @@ $allowed_pages = [
     'messages',
     'vacancy_manage',
     'my_applications',
-    'profile'
+    'profile',
+    'approvals',
+    'applications_review',
+    'card'
 ];
 
 $page = $_GET['page'] ?? 'vacancies';
@@ -41,7 +41,7 @@ if (!in_array($page, $allowed_pages)) {
       <h2 class="logo">KMS Enable</h2>
       <a href="dashboard.php?page=vacancies">Job Vacancies</a>
       <?php if ($u['role'] === 'clerk'): ?>
-        <a href="dashboard.php?page=applications_review">Applications (Clerk)</a>
+        <a href="dashboard.php?page=card">Applications (HRMPSB)</a>
         <a href="dashboard.php?page=employee_tracking">Employee Tracking</a>
         <a href="dashboard.php?page=messages">Messages</a>
       
@@ -50,7 +50,8 @@ if (!in_array($page, $allowed_pages)) {
         <a href="dashboard.php?page=employee_tracking">Employee Tracking</a>
         <a href="dashboard.php?page=messages">Messages</a>
         <a href="dashboard.php?page=vacancy_manage">Manage Vacancies</a>
-      
+        <a href="dashboard.php?page=approvals">HRMPSB Account Management</a>
+
       <?php else: ?>
         <a href="dashboard.php?page=my_applications">My Applications</a>
         <a href="dashboard.php?page=profile">My Profile</a>

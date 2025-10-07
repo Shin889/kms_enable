@@ -21,7 +21,7 @@ if ($u) {
     <div class="page-container">
         <section class="hero">
             <h1>KMS Enable Recruitment and Onboarding</h1>
-            <p>Empowering organizations with seamless recruitment and onboarding solutions.
+            <p>Empowering organizations with seamless recruitment.
                 Manage job vacancies, track applicants, and streamline employee integration.</p>
         </section>
 

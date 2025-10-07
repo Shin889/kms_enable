@@ -22,7 +22,6 @@ function parse_from($from) {
 }
 
 function send_mail_and_log(string $recipient_uid, string $toEmail, string $subject, string $html, string $type, ?string $sender_uid = null) {
-  // log first (system)
   db()->prepare("INSERT INTO messages_log (recipient_uid, sender_uid, message_type, message_content, sent_via) VALUES (?,?,?,?, 'system')")
      ->execute([$recipient_uid, $sender_uid, $type, $subject]);
 
@@ -35,7 +34,6 @@ function send_mail_and_log(string $recipient_uid, string $toEmail, string $subje
     $m->AltBody = strip_tags($html);
     $m->send();
 
-    // log as gmail too
     db()->prepare("INSERT INTO messages_log (recipient_uid, sender_uid, message_type, message_content, sent_via) VALUES (?,?,?,?, 'gmail')")
        ->execute([$recipient_uid, $sender_uid, $type, $subject]);
   } catch (Exception $e) {

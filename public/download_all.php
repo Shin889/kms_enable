@@ -10,22 +10,17 @@ if (empty($_GET['file'])) {
     exit('Missing file');
 }
 
-// Sanitize input
 $requested = str_replace(['\\', '..'], ['/', ''], $_GET['file']);
 
-// Base uploads folder
 $uploadsRoot = __DIR__ . '/../uploads';
 
-// Full path (no realpath)
 $fullPath = $uploadsRoot . '/' . $requested;
 
-// Security: make sure file is under uploads
 if (strpos(realpath($uploadsRoot . '/' . $requested), realpath($uploadsRoot)) !== 0) {
     http_response_code(403);
     exit('Access denied');
 }
 
-// Check file exists
 if (!file_exists($fullPath) || !is_file($fullPath)) {
     http_response_code(404);
     exit('File not found');
