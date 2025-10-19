@@ -18,7 +18,14 @@
 
  body {
      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-     background: var(--bg);
+     background:
+       linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+       url('/CatSU_KMS_Recruitment_Portal/public/assets/images/catsu.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: 100vh;
      color: var(--text);
      margin: 0;
      padding: 20px;

@@ -8,6 +8,7 @@ if (!isset($_GET['id'])) {
 
 $appId = (int) $_GET['id'];
 
+// Fetch application details
 $stmt = db()->prepare("
   SELECT 
       a.*, 
@@ -32,33 +33,74 @@ if (!$app) {
   die("Application not found.");
 }
 
+// Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   csrf_check();
   $action = $_POST['action'] ?? '';
 
+  // 🔹 Get current user UID safely
+  $currentUser = current_user();
+  $approvedBy = is_array($currentUser) && isset($currentUser['uid']) ? $currentUser['uid'] : null;
+
+  if ($approvedBy === null) {
+    die("Error: Could not determine current user UID. Please re-login.");
+  }
+
+  // 🔹 Set interview schedule
   if ($action === 'set_interview') {
     $date = $_POST['interview_date'] ?? null;
-    if ($date) {
-      db()->prepare("UPDATE applications SET interview_date = ? WHERE application_id = ?")
-        ->execute([$date, $appId]);
+
+    if (!empty($date)) {
+      $stmt = db()->prepare("UPDATE applications SET interview_date = ? WHERE application_id = ?");
+      $stmt->execute([$date, $appId]);
+
       $_SESSION['flash'] = "Interview schedule updated successfully.";
       redirect("alt_manage.php?id={$appId}");
+    } else {
+      $_SESSION['flash'] = "Please provide a valid interview date.";
     }
   }
 
+  // 🔹 Finalize (hire/reject)
   if ($action === 'finalize') {
     $final_status = $_POST['final_status'] ?? '';
     $reason = trim($_POST['reason'] ?? '');
+
     if (in_array($final_status, ['hired', 'rejected_final'])) {
-      db()->prepare("
+      $stmt = db()->prepare("
         UPDATE applications 
         SET status = ?, 
             approval_rejection_reason = ?, 
             approved_by_uid = ? 
         WHERE application_id = ?
-      ")->execute([$final_status, $reason, current_user('uid'), $appId]);
-      $_SESSION['flash'] = "Application finalized as {$final_status}.";
-      redirect("alt_manage.php?id={$appId}");
+      ");
+
+      try {
+        $stmt->execute([$final_status, $reason, $approvedBy, $appId]);
+
+        // ✅ If Hired: Insert into employee_tracking
+        if ($final_status === 'hired') {
+          $check = db()->prepare("SELECT * FROM employee_tracking WHERE applicant_uid = ?");
+          $check->execute([$app['applicant_uid']]);
+          $exists = $check->fetch();
+
+          if (!$exists) {
+            $insert = db()->prepare("
+              INSERT INTO employee_tracking 
+              (applicant_uid, employment_status, start_date, monitoring_start_date, promotion_history, remarks)
+              VALUES (?, 'job_order', CURDATE(), CURDATE(), 'None', 'Initial hire')
+            ");
+            $insert->execute([$app['applicant_uid']]);
+          }
+        }
+
+        $_SESSION['flash'] = "Application finalized as {$final_status}.";
+        redirect("alt_manage.php?id={$appId}");
+      } catch (PDOException $e) {
+        $_SESSION['flash'] = "Database error: " . htmlspecialchars($e->getMessage());
+      }
+    } else {
+      $_SESSION['flash'] = "Invalid status selected.";
     }
   }
 }
@@ -67,6 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html>
 
 <head>
+  <meta charset="utf-8">
+  <title>Manage Application</title>
   <link rel="stylesheet" href="assets/utils/alt_manage.css">
 </head>
 
@@ -75,8 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <h3>Application Details</h3>
 
   <?php if (!empty($_SESSION['flash'])): ?>
-    <div class="flash"><?= htmlspecialchars($_SESSION['flash']);
-    unset($_SESSION['flash']); ?></div>
+    <div class="flash"><?= htmlspecialchars($_SESSION['flash']); unset($_SESSION['flash']); ?></div>
   <?php endif; ?>
 
   <div class="app-details">
@@ -123,8 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="post" style="margin-bottom: 25px;">
       <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
       <input type="hidden" name="action" value="set_interview">
-      <input type="datetime-local" name="interview_date" value="<?= htmlspecialchars($app['interview_date'] ?? '') ?>"
-        required>
+      <input type="datetime-local" name="interview_date" value="<?= htmlspecialchars($app['interview_date'] ?? '') ?>" required>
       <button type="submit">Save Interview Schedule</button>
     </form>
 

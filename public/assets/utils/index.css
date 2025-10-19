@@ -14,18 +14,22 @@
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
 
-        html,
-        body {
-            color: var(--text);
-            background: radial-gradient(1200px 600px at 10% -10%, rgba(59, 130, 246, 0.15), transparent 60%),
-                radial-gradient(900px 500px at 110% 10%, rgba(99, 102, 241, 0.12), transparent 60%),
-                linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            line-height: 1.65;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+html, body {
+    color: var(--text);
+    background:
+       linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+       url('/CatSU_KMS_Recruitment_Portal/public/assets/images/catsu.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+
+    margin: 0;
+    padding: 0;
+    line-height: 1.65;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
         .page-container {
             max-width: 1200px;
