@@ -13,7 +13,7 @@ if ($u) {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>KMS Enable Recruitment and Onboarding</title>
+    <title>KMS Enable Recruitment</title>
     <link rel="stylesheet" href="assets/utils/index.css" />
 </head>
 
