@@ -20,14 +20,14 @@ if ($u) {
 <body>
     <div class="page-container">
         <section class="hero">
-            <h1>KMS Enable Recruitment and Onboarding</h1>
+            <h1>KMS Enable Recruitment</h1>
             <p>Empowering organizations with seamless recruitment.
                 Manage job vacancies, track applicants, and streamline employee integration.</p>
         </section>
 
         <div class="nav-container">
             <div class="nav-image">
-                <img src="assets/images/office-bg.png" alt="Office Background" />
+                <img src="assets/images/catanduanes-state-university-removebg-preview.png" alt="Office Background" />
             </div>
             <nav class="main-nav nav-box">
                 <a href="vacancies.php">Job Vacancy</a>
