@@ -4,7 +4,9 @@ csrf_check();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   try {
-    $role = $_POST['role'] ?? 'applicant';
+    $allowed_roles = ['applicant', 'clerk'];
+    $role = in_array($_POST['role'] ?? '', $allowed_roles, true) ? $_POST['role'] : 'applicant';
+    
     $uid = create_user($_POST, $role, true);
 
     notify_user(
