@@ -24,16 +24,19 @@ if ($u) {
             <p>Empowering organizations with seamless recruitment.
                 Manage job vacancies, track applicants, and streamline employee integration.</p>
         </section>
-
-        <div class="nav-container">
+        
+        <div class="content-wrapper">
             <div class="nav-image">
-                <img src="assets/images/catanduanes-state-university-removebg-preview.png" alt="Office Background" />
+                <img src="assets/images/catsu.png" alt="University" />
             </div>
-            <nav class="main-nav nav-box">
-                <a href="vacancies.php">Job Vacancy</a>
-                <a href="login.php">Login</a>
-                <a href="register.php">Register</a>
-            </nav>
+            
+            <div class="nav-container">
+                <nav class="main-nav nav-box">
+                    <a href="vacancies.php">Job Vacancy</a>
+                    <a href="login.php">Login</a>
+                    <a href="register.php">Register</a>
+                </nav>
+            </div>
         </div>
     </div>
 </body>

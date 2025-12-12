@@ -26,33 +26,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" type="text/css" href="assets/utils/login.css">
-  <title>Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | KMS Enable Recruitment</title>
+  <link rel="stylesheet" href="assets/utils/login.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-  <div class="login-box">
-      <h3>Login</h3>
-      <?php if ($error): ?>
-        <p class="error"><?= htmlspecialchars($error) ?></p>
-      <?php endif; ?>
-
-      <form method="post">
-        <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+    <div class="login-box">
+        <div class="logo-container">
+            <img src="assets/images/catanduanes-state-university-removebg-preview.jpg" alt="Catanduanes State University Logo" />
+        </div>
         
-        <label>Email
-          <input name="email" type="email" required>
-        </label>
+        <h3>Login</h3>
+        <p class="subtitle">Enter your credentials to access your account</p>
+        
+        <?php if ($error): ?>
+            <div class="error">
+                <i class="fas fa-exclamation-circle"></i>
+                <?= htmlspecialchars($error) ?>
+            </div>
+        <?php endif; ?>
 
-        <label>Password
-          <input name="password" type="password" required>
-        </label>
+        <form method="post">
+            <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input id="email" name="email" type="email" required placeholder="Enter your email">
+            </div>
 
-        <button type="submit">Login</button>
-      </form>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" required placeholder="Enter your password">
+            </div>
 
-      <p><a href="password_reset_request.php">Forgot password?</a></p>
-  </div>
+            <button type="submit">
+                <i class="fas fa-sign-in-alt"></i>
+                Login
+            </button>
+        </form>
+
+        <div class="links">
+            <a href="password_reset_request.php">
+                <i class="fas fa-key"></i>
+                Forgot Password?
+            </a>
+            <a href="register.php">
+                <i class="fas fa-user-plus"></i>
+                Don't have an account? Register
+            </a>
+            <a href="index.php">
+                <i class="fas fa-home"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
 </body>
 </html>
