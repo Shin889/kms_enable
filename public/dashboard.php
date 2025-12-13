@@ -213,7 +213,7 @@ if ($u['role'] === 'applicant') {
                     <i class="fas fa-bars"></i>
                 </button>
                 
-               <<div class="user-menu">
+               <div class="user-menu">
     <a href="profile.php" class="nav-link" style="padding: 8px 12px; background: var(--bg-2); border-radius: 8px;">
         <?php if (!empty($profilePictureUrl) && $u['role'] === 'applicant'): ?>
             <div class="user-avatar profile-picture-avatar" style="width: 32px; height: 32px; position: relative;">

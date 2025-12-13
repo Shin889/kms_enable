@@ -86,16 +86,20 @@ h3 {
   border-top: 4px solid var(--primary);
 }
 
-.stat-card.president {
+.stat-card.submitted {
   border-top: 4px solid var(--warning);
 }
 
-.stat-card.admin {
+.stat-card.president {
   border-top: 4px solid var(--success);
 }
 
-.stat-card.interviewed {
+.stat-card.admin {
   border-top: 4px solid var(--info);
+}
+
+.stat-card.rejected {
+  border-top: 4px solid var(--primary);
 }
 
 .stat-number {

@@ -207,10 +207,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uid === $view_uid && $user['role']
         <i class="fas fa-tasks"></i> Quick Actions
     </h5>
     
-    <a href="personal_data.php" class="sidebar-btn" style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; margin-bottom: 8px; text-decoration: none; color: var(--dark); border: 1px solid var(--border);">
-        <i class="fas fa-id-card" style="margin-right: 10px; color: var(--primary);"></i>
-        <span>Personal Data</span>
-    </a>
+    <?php if ($uid === $view_uid): ?>
+        <!-- For viewing own profile -->
+        <a href="personal_data.php" class="sidebar-btn" style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; margin-bottom: 8px; text-decoration: none; color: var(--dark); border: 1px solid var(--border);">
+            <i class="fas fa-id-card" style="margin-right: 10px; color: var(--primary);"></i>
+            <span>Personal Data</span>
+        </a>
+    <?php elseif (in_array($user['role'], ['admin', 'president'])): ?>
+        <!-- For admins/presidents viewing other profiles -->
+        <a href="personal_data.php?uid=<?= $view_uid ?>" class="sidebar-btn" style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; margin-bottom: 8px; text-decoration: none; color: var(--dark); border: 1px solid var(--border);">
+            <i class="fas fa-id-card" style="margin-right: 10px; color: var(--primary);"></i>
+            <span>View Personal Data</span>
+        </a>
+    <?php endif; ?>
     
     <a href="my_applications.php" class="sidebar-btn" style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; text-decoration: none; color: var(--dark); border: 1px solid var(--border);">
         <i class="fas fa-file-alt" style="margin-right: 10px; color: var(--primary);"></i>

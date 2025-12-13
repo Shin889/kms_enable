@@ -12,12 +12,36 @@ csrf_check();
     <title>Applications Overview | PRESIDENT</title>
     <link rel="stylesheet" href="assets/utils/applications_overview.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .view-all-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: #4361ee;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .view-all-link:hover {
+            background: #3a56d4;
+        }
+        .view-all-link i {
+            margin-right: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-tasks"></i> Applications Overview</h1>
             <p class="subtitle">Review and manage applications for all job vacancies</p>
+            
+            <!-- Add View All Applications link -->
+            <a href="applications_review.php" class="view-all-link">
+                <i class="fas fa-eye"></i> View All Applications
+            </a>
         </div>
 
         <div class="stats-container">
@@ -118,7 +142,7 @@ csrf_check();
                                 $approvedCount = $job['approved_count'];
                                 $rejectedCount = $job['rejected_count'];
                             ?>
-                                <tr>
+                                <tr data-job-id="<?= $vacancyId ?>">
                                     <td data-label="Job ID">
                                         <span class="job-id">#<?= $vacancyId ?></span>
                                     </td>
@@ -139,7 +163,7 @@ csrf_check();
                                     </td>
                                     <td data-label="Actions" class="action-cell">
                                         <a href="applications_review.php?job_id=<?= $vacancyId ?>" class="review-btn">
-                                            <i class="fas fa-eye"></i> Review
+                                            <i class="fas fa-eye"></i> View Applications
                                         </a>
                                     </td>
                                 </tr>
