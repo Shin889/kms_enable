@@ -8,7 +8,7 @@ if (!$user) {
 
 $uid = $user['uid'];
 
-$view_uid = isset($_GET['uid']) && in_array($user['role'], ['clerk', 'admin'])
+$view_uid = isset($_GET['uid']) && in_array($user['role'], ['president', 'admin'])
     ? $_GET['uid']
     : $uid;
 
@@ -403,7 +403,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uid === $view_uid && $user['role']
                   <!--   <a href="dashboard.php" class="back-link">
                         <i class="fas fa-arrow-left"></i> Back to Dashboard
                     </a> -->
-                    <?php if ($uid !== $view_uid && in_array($user['role'], ['clerk', 'admin'])): ?>
+                    <?php if ($uid !== $view_uid && in_array($user['role'], ['president', 'admin'])): ?>
                         <a href="applications.php?uid=<?= $view_uid ?>" class="btn">
                             <i class="fas fa-file-alt"></i> View Applications
                         </a>

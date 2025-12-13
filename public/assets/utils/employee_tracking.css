@@ -78,9 +78,9 @@
             text-align: center;
         }
 
-        .stat-card:hover {
+      /*   .stat-card:hover {
             transform: translateY(-4px);
-        }
+        } */
 
         .stat-card.total {
             border-top: 4px solid var(--primary);
@@ -213,10 +213,10 @@
             width: 100%;
         }
 
-        .btn:hover {
+       /*  .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 24px rgba(59, 130, 246, 0.25);
-        }
+        } */
 
         .btn-secondary {
             background: var(--bg-2);
@@ -224,11 +224,11 @@
             border: 1px solid var(--border);
         }
 
-        .btn-secondary:hover {
+      /*   .btn-secondary:hover {
             background: var(--border);
             box-shadow: none;
             transform: none;
-        }
+        } */
 
         .btn-small {
             padding: 8px 16px;
@@ -298,9 +298,9 @@
             transition: background-color 0.3s ease;
         }
 
-        .employee-table tbody tr:hover {
+       /*  .employee-table tbody tr:hover {
             background-color: var(--bg-2);
-        }
+        } */
 
         .employee-table td {
             padding: 16px 12px;
@@ -349,11 +349,11 @@
             gap: 6px;
         }
 
-        .employee-link:hover {
+       /*  .employee-link:hover {
             color: var(--primary-600);
             text-decoration: underline;
         }
-
+ */
         .employee-name {
             font-weight: 500;
             margin-bottom: 4px;

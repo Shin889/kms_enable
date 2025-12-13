@@ -162,10 +162,10 @@
           transition: background-color 0.3s ease;
         }
 
-        .applications-table tbody tr:hover {
+       /*  .applications-table tbody tr:hover {
           background-color: var(--bg-2);
         }
-
+ */
         .applications-table td {
           padding: 20px 24px;
           color: var(--text);
@@ -261,11 +261,11 @@
           transition: all 0.3s ease;
         }
 
-        .action-link:hover {
+       /*  .action-link:hover {
           background: var(--primary-600);
           transform: translateY(-2px);
           box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
-        }
+        } */
 
         .action-link.secondary {
           background: var(--bg-2);
@@ -273,10 +273,10 @@
           border: 1px solid var(--border);
         }
 
-        .action-link.secondary:hover {
+       /*  .action-link.secondary:hover {
           background: var(--border);
         }
-
+ */
         @media (max-width: 768px) {
           .container {
             padding: 16px;

@@ -7,14 +7,14 @@ $apps = db()->query("
   FROM applications a
   JOIN users u ON u.uid = a.applicant_uid
   JOIN job_vacancies j ON j.vacancy_id = a.vacancy_id
-  WHERE a.status IN ('approved_by_hrmpsb','approved_by_admin','interviewed')
+  WHERE a.status IN ('approved_by_president','approved_by_admin','interviewed')
   ORDER BY a.date_applied DESC
 ")->fetchAll();
 
 // Get counts for different statuses
 $counts = [
     'total' => count($apps),
-    'approved_by_hrmpsb' => 0,
+    'approved_by_president' => 0,
     'approved_by_admin' => 0,
     'interviewed' => 0
 ];
@@ -45,9 +45,9 @@ foreach ($apps as $app) {
                     <div class="stat-number"><?= $counts['total'] ?></div>
                     <div class="stat-label">Total Applications</div>
                 </div>
-                <div class="stat-card hrmpsb">
-                    <div class="stat-number"><?= $counts['approved_by_hrmpsb'] ?></div>
-                    <div class="stat-label">HRMPSB Approved</div>
+                <div class="stat-card president">
+                    <div class="stat-number"><?= $counts['approved_by_president'] ?></div>
+                    <div class="stat-label">President Approved</div>
                 </div>
                 <div class="stat-card admin">
                     <div class="stat-number"><?= $counts['approved_by_admin'] ?></div>
@@ -65,7 +65,7 @@ foreach ($apps as $app) {
                 <label class="filter-label">Filter by Status</label>
                 <select class="filter-select" id="statusFilter">
                     <option value="all">All Statuses</option>
-                    <option value="approved_by_hrmpsb">HRMPSB Approved</option>
+                    <option value="approved_by_president">President Approved</option>
                     <option value="approved_by_admin">Admin Approved</option>
                     <option value="interviewed">Interviewed</option>
                 </select>
@@ -141,7 +141,7 @@ foreach ($apps as $app) {
                 <div class="no-data-icon"><i class="fas fa-file-alt"></i></div>
                 <h4>No Advanced Applications</h4>
                 <p>There are no applications in advanced review stages.</p>
-                <p>Applications will appear here once they are approved by HRMPSB or admin.</p>
+                <p>Applications will appear here once they are approved by President or admin.</p>
             </div>
         </div>
         <?php endif; ?>

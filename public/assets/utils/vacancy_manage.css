@@ -78,9 +78,9 @@
           text-align: center;
         }
 
-        .stat-card:hover {
+        /* .stat-card:hover {
           transform: translateY(-4px);
-        }
+        } */
 
         .stat-card.total {
           border-top: 4px solid var(--primary);
@@ -256,18 +256,18 @@
           width: 100%;
         }
 
-        .btn:hover {
+       /*  .btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 12px 24px rgba(59, 130, 246, 0.25);
         }
-
+ */
         .btn-danger {
           background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
         }
 
-        .btn-danger:hover {
+      /*   .btn-danger:hover {
           box-shadow: 0 12px 24px rgba(239, 68, 68, 0.25);
-        }
+        } */
 
         .btn-small {
           padding: 8px 16px;
@@ -315,11 +315,11 @@
           transition: all 0.3s ease;
         }
 
-        .vacancy-card:hover {
+       /*  .vacancy-card:hover {
           transform: translateY(-2px);
           box-shadow: var(--shadow);
           background: var(--card);
-        }
+        } */
 
         .vacancy-header {
           display: flex;
@@ -486,10 +486,10 @@
           border: 1px solid var(--border);
         }
 
-        .action-link:hover {
+       /*  .action-link:hover {
           background: var(--border);
           transform: translateY(-2px);
-        }
+        } */
 
         @media (max-width: 768px) {
           .container {

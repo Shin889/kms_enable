@@ -15,21 +15,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'approve') {
         db()->prepare("UPDATE users SET account_status = 'active' WHERE uid = ?")->execute([$uid]);
         notify_user($uid, 'account_approved', 'Account Approved', 
-            '<p>Your clerk account has been approved by the administrator.</p>
+            '<p>Your president account has been approved by the administrator.</p>
              <p>You can now log in and access the HRMPSB dashboard.</p>');
         $_SESSION['flash'] = 'Account approved successfully.';
     } elseif ($action === 'reject') {
         db()->prepare("UPDATE users SET account_status = 'rejected' WHERE uid = ?")->execute([$uid]);
         notify_user($uid, 'account_rejected', 'Account Rejected', 
-            '<p>Your clerk account registration was rejected.</p>
+            '<p>Your president account registration was rejected.</p>
              <p>Please contact the administrator for more information.</p>');
         $_SESSION['flash'] = 'Account rejected successfully.';
     }
     redirect('pending_approvals.php');
 }
 
-// Get pending clerk accounts
-$st = db()->prepare("SELECT * FROM users WHERE account_status = 'pending' AND role = 'clerk' ORDER BY created_at DESC");
+// Get pending president accounts
+$st = db()->prepare("SELECT * FROM users WHERE account_status = 'pending' AND role = 'president' ORDER BY created_at DESC");
 $st->execute();
 $pending = $st->fetchAll(PDO::FETCH_ASSOC);
 
@@ -43,8 +43,8 @@ $stats = [
 $today = date('Y-m-d');
 $weekAgo = date('Y-m-d', strtotime('-7 days'));
 
-foreach ($pending as $clerk) {
-    $createdAt = date('Y-m-d', strtotime($clerk['created_at']));
+foreach ($pending as $president) {
+    $createdAt = date('Y-m-d', strtotime($president['created_at']));
     if ($createdAt === $today) {
         $stats['today']++;
     }
@@ -70,7 +70,7 @@ unset($_SESSION['flash'], $_SESSION['flash_error']);
 <body>
     <div class="container">
         <div class="header">
-            <h2>Pending Clerk Approvals</h2>
+            <h2>Pending President Approvals</h2>
             <p class="subtitle">Review and approve new HRMPSB staff account registrations</p>
             
             <div class="stats-container">
@@ -105,7 +105,7 @@ unset($_SESSION['flash'], $_SESSION['flash_error']);
 
         <div class="approvals-container">
             <div class="table-header">
-                <h3><i class="fas fa-user-clock"></i> Pending Clerk Accounts</h3>
+                <h3><i class="fas fa-user-clock"></i> Pending President Accounts</h3>
                 <div class="table-count"><?= $stats['total'] ?> accounts awaiting approval</div>
             </div>
             
@@ -113,8 +113,8 @@ unset($_SESSION['flash'], $_SESSION['flash_error']);
                 <div class="no-pending">
                     <div class="no-pending-icon"><i class="fas fa-check-circle"></i></div>
                     <h4>All Clear!</h4>
-                    <p>There are no pending clerk accounts awaiting approval.</p>
-                    <p>New clerk registrations will appear here for review.</p>
+                    <p>There are no pending president accounts awaiting approval.</p>
+                    <p>New president registrations will appear here for review.</p>
                 </div>
             <?php else: ?>
                 <table class="approvals-table">
@@ -127,17 +127,17 @@ unset($_SESSION['flash'], $_SESSION['flash_error']);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($pending as $clerk): 
-                            $firstName = htmlspecialchars($clerk['firstName']);
-                            $lastName = htmlspecialchars($clerk['lastName']);
+                        <?php foreach ($pending as $president): 
+                            $firstName = htmlspecialchars($president['firstName']);
+                            $lastName = htmlspecialchars($president['lastName']);
                             $fullName = $firstName . ' ' . $lastName;
-                            $email = htmlspecialchars($clerk['email']);
-                            $createdAt = date('M j, Y', strtotime($clerk['created_at']));
+                            $email = htmlspecialchars($president['email']);
+                            $createdAt = date('M j, Y', strtotime($president['created_at']));
                             $initials = strtoupper(substr($firstName, 0, 1) . substr($lastName, 0, 1));
                         ?>
                             <tr>
                                 <td>
-                                    <span class="user-id">#<?= $clerk['uid'] ?></span>
+                                    <span class="user-id">#<?= $president['uid'] ?></span>
                                 </td>
                                 <td>
                                     <div class="user-info">
@@ -158,19 +158,19 @@ unset($_SESSION['flash'], $_SESSION['flash_error']);
                                     <div class="action-buttons">
                                         <form method="post" style="display: inline;">
                                             <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
-                                            <input type="hidden" name="uid" value="<?= $clerk['uid'] ?>">
+                                            <input type="hidden" name="uid" value="<?= $president['uid'] ?>">
                                             <button type="submit" name="action" value="approve" 
                                                     class="btn btn-success"
-                                                    onclick="return confirm('Approve clerk account for <?= addslashes($fullName) ?>?')">
+                                                    onclick="return confirm('Approve president account for <?= addslashes($fullName) ?>?')">
                                                 <i class="fas fa-check"></i> Approve
                                             </button>
                                         </form>
                                         <form method="post" style="display: inline;">
                                             <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
-                                            <input type="hidden" name="uid" value="<?= $clerk['uid'] ?>">
+                                            <input type="hidden" name="uid" value="<?= $president['uid'] ?>">
                                             <button type="submit" name="action" value="reject" 
                                                     class="btn btn-danger"
-                                                    onclick="return confirm('Reject clerk account for <?= addslashes($fullName) ?>? This action cannot be undone.')">
+                                                    onclick="return confirm('Reject president account for <?= addslashes($fullName) ?>? This action cannot be undone.')">
                                                 <i class="fas fa-times"></i> Reject
                                             </button>
                                         </form>
@@ -199,10 +199,10 @@ unset($_SESSION['flash'], $_SESSION['flash_error']);
     <div id="approveModal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
-                <h3>Approve Clerk Account</h3>
+                <h3>Approve President Account</h3>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to approve this clerk account?</p>
+                <p>Are you sure you want to approve this president account?</p>
                 <p>The user will be able to log in and access the HRMPSB dashboard.</p>
             </div>
             <div class="modal-footer">
@@ -224,10 +224,10 @@ unset($_SESSION['flash'], $_SESSION['flash_error']);
     <div id="rejectModal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
-                <h3>Reject Clerk Account</h3>
+                <h3>Reject President Account</h3>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to reject this clerk account?</p>
+                <p>Are you sure you want to reject this president account?</p>
                 <p class="text-danger"><strong>Warning:</strong> This action cannot be undone.</p>
                 <p>The user will be notified and will not be able to log in.</p>
             </div>
@@ -284,8 +284,8 @@ unset($_SESSION['flash'], $_SESSION['flash_error']);
         document.querySelectorAll('form[action*="approve"] button[type="submit"]').forEach(button => {
             button.addEventListener('click', function(e) {
                 const form = this.closest('form');
-                const name = form.querySelector('input[name="name"]')?.value || 'this clerk';
-                if (!confirm(`Approve clerk account for ${name}?`)) {
+                const name = form.querySelector('input[name="name"]')?.value || 'this president';
+                if (!confirm(`Approve president account for ${name}?`)) {
                     e.preventDefault();
                 }
             });
@@ -294,8 +294,8 @@ unset($_SESSION['flash'], $_SESSION['flash_error']);
         document.querySelectorAll('form[action*="reject"] button[type="submit"]').forEach(button => {
             button.addEventListener('click', function(e) {
                 const form = this.closest('form');
-                const name = form.querySelector('input[name="name"]')?.value || 'this clerk';
-                if (!confirm(`Reject clerk account for ${name}? This action cannot be undone.`)) {
+                const name = form.querySelector('input[name="name"]')?.value || 'this president';
+                if (!confirm(`Reject president account for ${name}? This action cannot be undone.`)) {
                     e.preventDefault();
                 }
             });

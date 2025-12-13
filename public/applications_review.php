@@ -1,7 +1,14 @@
 <?php
 require_once __DIR__ . '/../src/init.php';
-require_role(['clerk', 'admin']);
+require_role(['president', 'admin']);
 csrf_check();
+
+// DEBUG: Check what's happening
+echo "<!-- DEBUG: Starting applications_review.php -->";
+echo "<!-- DEBUG: Current user role: " . current_user()['role'] . " -->";
+echo "<!-- DEBUG: GET job_id = " . ($_GET['job_id'] ?? 'NOT SET') . " -->";
+$jobId = isset($_GET['job_id']) ? (int) $_GET['job_id'] : 0;
+echo "<!-- DEBUG: jobId variable = $jobId -->";
 
 function download_url($path)
 {
@@ -13,16 +20,16 @@ function download_url($path)
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['application_id'])) {
   $appId = (int) $_POST['application_id'];
-  $clerkUid = $_SESSION['uid'];
+  $presidentUid = $_SESSION['uid'];
 
   if ($_POST['action'] === 'approve') {
     db()->prepare("
             UPDATE applications
-            SET status = 'approved_by_hrmpsb',
+            SET status = 'approved_by_president',
                 approval_rejection_reason = NULL,
                 approved_by_uid = ?
             WHERE application_id = ?
-        ")->execute([$clerkUid, $appId]);
+        ")->execute([$presidentUid, $appId]);
 
     $stmt = db()->prepare("SELECT applicant_uid FROM applications WHERE application_id = ?");
     $stmt->execute([$appId]);
@@ -30,21 +37,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['app
 
     notify_user(
       $uid,
-      'application_approved_hrmpsb',
+      'application_approved_president',
       'Your application passed initial review',
-      '<p>Approved by HRMPSB.</p>',
-      $clerkUid
+      '<p>Approved by PRESIDENT.</p>',
+      $presidentUid
     );
 
   } elseif ($_POST['action'] === 'reject') {
     $reason = trim($_POST['reason'] ?? '');
     db()->prepare("
             UPDATE applications
-            SET status = 'rejected_by_clerk',
+            SET status = 'rejected_by_president',
                 approval_rejection_reason = ?,
                 approved_by_uid = ?
             WHERE application_id = ?
-        ")->execute([$reason, $clerkUid, $appId]);
+        ")->execute([$reason, $presidentUid, $appId]);
 
     $stmt = db()->prepare("SELECT applicant_uid FROM applications WHERE application_id = ?");
     $stmt->execute([$appId]);
@@ -52,10 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['app
 
     notify_user(
       $uid,
-      'application_rejected_clerk',
+      'application_rejected_president',
       'Application Rejected',
       '<p>Reason: ' . htmlspecialchars($reason) . '</p>',
-      $clerkUid
+      $presidentUid
     );
   }
 
@@ -67,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rank_value'], $_POST[
   $rank = (int) $_POST['rank_value'];
   $appId = (int) $_POST['rank_application_id'];
 
-  if (current_user()['role'] === 'clerk') {
+  if (current_user()['role'] === 'president') {
     $stmt = db()->prepare("UPDATE applications SET rank = ? WHERE application_id = ?");
     $stmt->execute([$rank, $appId]);
   }
@@ -105,11 +112,11 @@ if ($jobId > 0) {
   
   foreach ($apps as $app) {
       $status = $app['status'];
-      if (in_array($status, ['submitted', 'rejected_by_clerk'])) {
+      if (in_array($status, ['submitted', 'rejected_by_president'])) {
           $stats['submitted']++;
       } elseif (in_array($status, ['under_review', 'shortlisted', 'interviewed'])) {
           $stats['under_review']++;
-      } elseif (in_array($status, ['approved_by_hrmpsb', 'approved_by_admin'])) {
+      } elseif (in_array($status, ['approved_by_president', 'approved_by_admin'])) {
           $stats['approved']++;
       } else {
           $stats['rejected']++;
@@ -126,7 +133,7 @@ if ($jobId > 0) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Applications Review - <?= htmlspecialchars($jobTitle) ?> | HRMPSB</title>
+  <title>Applications Review - <?= htmlspecialchars($jobTitle) ?> | PRESIDENT</title>
   <link rel="stylesheet" href="assets/utils/applications_review.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -254,7 +261,7 @@ if ($jobId > 0) {
                                     </div>
                                 </td>
                                 <td data-label="Rank">
-                                    <?php if (current_user()['role'] === 'clerk'): ?>
+                                    <?php if (current_user()['role'] === 'president'): ?>
                                         <form method="post" class="rank-form">
                                             <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
                                             <input type="hidden" name="rank_application_id" value="<?= $a['application_id'] ?>">
@@ -275,7 +282,7 @@ if ($jobId > 0) {
                                     <?php endif; ?>
                                 </td>
                                 <td data-label="Actions">
-                                    <?php if ($a['status'] === 'submitted' || $a['status'] === 'rejected_by_clerk'): ?>
+                                    <?php if ($a['status'] === 'submitted' || $a['status'] === 'rejected_by_president'): ?>
                                         <div class="action-buttons">
                                             <form method="post" style="display: inline;">
                                                 <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">

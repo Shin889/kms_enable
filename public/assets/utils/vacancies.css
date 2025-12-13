@@ -428,3 +428,304 @@
                 padding: 20px;
             }
         }
+
+
+        /* FOR CLEANUP PURPOSES */
+         .vacancies-table-container {
+            overflow-x: auto;
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .vacancies-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .vacancies-table thead {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%);
+            color: white;
+        }
+
+        .vacancies-table th {
+            padding: 18px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 15px;
+            white-space: nowrap;
+        }
+
+        .vacancies-table th i {
+            margin-right: 8px;
+        }
+
+        .vacancies-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .vacancies-table tbody tr:hover {
+            background: var(--bg-2);
+        }
+
+        .vacancies-table tbody tr.expanded {
+            background: var(--bg);
+        }
+
+        .vacancies-table td {
+            padding: 16px;
+            vertical-align: top;
+            color: var(--text);
+        }
+
+        .job-title-cell {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .job-title-cell .slots-badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+            display: inline-block;
+        }
+
+        .deadline-cell .deadline-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .deadline-badge.urgent {
+            background: var(--danger);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .deadline-badge.normal {
+            background: var(--warning);
+            color: white;
+        }
+
+        .skills-cell {
+            max-width: 250px;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .skill-tag {
+            background: var(--bg-2);
+            color: var(--text);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid var(--border);
+        }
+
+        .action-cell {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .toggle-details-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-details-btn:hover {
+            background: var(--bg-2);
+        }
+
+        .expand-details {
+            display: none;
+        }
+
+        .expand-details.expanded {
+            display: table-row;
+        }
+
+        .details-row td {
+            padding: 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .details-content {
+            padding: 24px;
+            background: var(--bg);
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* gap: 24px;
+            margin-bottom: 24px; */
+        }
+
+        @media (max-width: 768px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .details-section h5 {
+            margin: 0 0 12px;
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .details-section p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .description-section {
+            grid-column: 1 / -1;
+            /* margin-bottom: 24px; */
+        }
+
+        .description-section h5 {
+            margin-bottom: 12px;
+        }
+
+        .apply-form {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .apply-form .form-group {
+            margin-bottom: 16px;
+        }
+
+        .apply-form .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .apply-form .form-label i {
+            margin-right: 6px;
+            color: var(--primary);
+        }
+
+        .apply-form .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--input);
+            color: var(--text);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .apply-form .form-input:focus {
+            border-color: var(--ring);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        .apply-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 140px;
+        }
+
+        .apply-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(59, 130, 246, 0.25);
+        }
+
+        .no-results-row td {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--muted);
+        }
+
+        .no-results-row h4 {
+            margin: 0 0 8px;
+            color: var(--text);
+        }
+
+        .meta-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .meta-icon {
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .vacancies-table-container {
+                border-radius: 12px;
+            }
+            
+            .vacancies-table th,
+            .vacancies-table td {
+                padding: 12px;
+            }
+            
+            .skills-cell {
+                max-width: 150px;
+            }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }

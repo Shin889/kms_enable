@@ -3,7 +3,7 @@ exit;
 
 <?php
 require_once __DIR__ . '/../src/init.php';
-require_role(['clerk','admin','applicant']);
+require_role(['president','admin','applicant']);
 
 if (empty($_GET['file'])) {
     http_response_code(400);

@@ -273,3 +273,112 @@
             padding: 14px;
         }
     }
+
+    /* success notification */
+     .success-notification {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 30px;
+      text-align: center;
+      animation: fadeIn 0.5s ease-in;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .success-notification i {
+      color: #28a745;
+      font-size: 48px;
+      margin-bottom: 20px;
+      display: block;
+    }
+    
+    .success-notification h4 {
+      color: #155724;
+      margin-bottom: 15px;
+      font-size: 22px;
+      font-weight: 600;
+    }
+    
+    .success-notification p {
+      color: #0c5460;
+      margin-bottom: 10px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    
+    .success-notification .email-highlight {
+      background-color: #fff3cd;
+      padding: 8px 15px;
+      border-radius: 6px;
+      font-weight: bold;
+      color: #856404;
+      display: inline-block;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    
+    .success-notification .next-steps {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #b1dfbb;
+    }
+    
+    .success-notification .next-steps p {
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .btn-login-now {
+      display: inline-block;
+      background-color: #218838;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-top: 10px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+/*     
+    .btn-login-now:hover {
+      background-color: #218838;
+      text-decoration: none;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+     */
+    .btn-login-now i {
+      margin-right: 8px;
+      font-size: 16px;
+    }
+    
+    .additional-links {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+    
+    .additional-links a {
+      display: block;
+      margin: 10px 0;
+      color: #007bff;
+      text-decoration: none;
+    }
+    
+    .additional-links a:hover {
+      text-decoration: underline;
+    }
+    
+    .additional-links a i {
+      margin-right: 8px;
+    }

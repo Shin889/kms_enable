@@ -16,9 +16,8 @@ $stmt = db()->prepare("
         u.firstName AS applicant_firstName,
         u.middleName AS applicant_middleName,
         u.lastName AS applicant_lastName,
-        u.phone AS applicant_phone,
         j.job_title,
-        j.department,
+        
         approver.uid AS approver_uid,
         approver.firstName AS approver_firstName,
         approver.middleName AS approver_middleName,
@@ -28,7 +27,7 @@ $stmt = db()->prepare("
     JOIN job_vacancies j ON j.vacancy_id = a.vacancy_id
     LEFT JOIN users approver 
         ON approver.uid = a.approved_by_uid 
-        AND approver.role = 'clerk'
+        AND approver.role = 'president'
     WHERE a.application_id = ?
 ");
 $stmt->execute([$appId]);
@@ -128,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Get status badge class
 function getStatusBadgeClass($status) {
     $classes = [
-        'approved_by_hrmpsb' => 'status-hrmpsb',
+        'approved_by_president' => 'status-president',
         'approved_by_admin' => 'status-admin',
         'interviewed' => 'status-interviewed',
         'hired' => 'status-hired',
@@ -201,9 +200,9 @@ function formatDate($date) {
                         <th>Job Position</th>
                         <td>
                             <strong><?= htmlspecialchars($app['job_title']) ?></strong>
-                            <?php if ($app['department']): ?>
+                           <!--  <?php if ($app['department']): ?>
                                 <br><span style="color: var(--muted); font-size: 14px;"><?= htmlspecialchars($app['department']) ?></span>
-                            <?php endif; ?>
+                            <?php endif; ?> -->
                         </td>
                     </tr>
                     <tr>
@@ -217,9 +216,9 @@ function formatDate($date) {
                                 </span>
                                 <span class="applicant-contact">
                                     <?= htmlspecialchars($app['applicant_email']) ?>
-                                    <?php if ($app['applicant_phone']): ?>
+                                    <!-- <?php if ($app['applicant_phone']): ?>
                                         • <?= htmlspecialchars($app['applicant_phone']) ?>
-                                    <?php endif; ?>
+                                    <?php endif; ?> -->
                                 </span>
                             </div>
                         </td>

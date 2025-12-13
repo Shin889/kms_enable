@@ -1,6 +1,6 @@
 <?php 
 require_once __DIR__ . '/../src/init.php';
-require_role(['clerk', 'admin']);
+require_role(['president', 'admin']);
 csrf_check();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -1,6 +1,6 @@
 <?php 
 require_once __DIR__ . '/../src/init.php'; 
-require_role(['clerk','admin']); 
+require_role(['president','admin']); 
 csrf_check();
 
 if ($_SERVER['REQUEST_METHOD']==='POST') {
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
 $users = db()->query("
     SELECT uid, email, firstName, lastName 
     FROM users 
-    WHERE role IN ('applicant', 'clerk')
+    WHERE role IN ('applicant', 'president')
     ORDER BY firstName, lastName
 ")->fetchAll();
 

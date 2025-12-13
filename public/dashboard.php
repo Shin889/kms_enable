@@ -11,6 +11,7 @@ $allowed_pages = [
     'vacancies',
     'applications_overview',
     'applications_review',
+    'applications_overview',
     'applications_admin',
     'employee_tracking',
     'messages',
@@ -18,8 +19,7 @@ $allowed_pages = [
     'my_applications',
     'profile',
     'approvals',
-    'applications_review',
-    'applications_overview'
+    'personal_data'
 ];
 
 $page = $_GET['page'] ?? 'vacancies';
@@ -39,6 +39,7 @@ $page_titles = [
     'my_applications' => 'My Applications',
     'profile' => 'My Profile',
     'approvals' => 'Pending Approvals',
+    'personal_data' => 'Personal Data'
 ];
 
 $page_title = $page_titles[$page] ?? 'Dashboard';
@@ -61,7 +62,6 @@ $user_role = htmlspecialchars(ucfirst($u['role']));
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <a href="dashboard.php?page=vacancies" class="sidebar-logo">
-                <div class="logo-icon">K</div>
                 <div class="logo-text">KMS Enable</div>
             </a>
         </div>
@@ -86,11 +86,11 @@ $user_role = htmlspecialchars(ucfirst($u['role']));
                         <div class="nav-label">Job Vacancies</div>
                     </a>
                     
-                    <?php if ($u['role'] === 'clerk'): ?>
-                        <a href="dashboard.php?page=applications_review" 
-                           class="nav-link <?= $page === 'applications_review' ? 'active' : '' ?>">
+                    <?php if ($u['role'] === 'president'): ?>
+                        <a href="dashboard.php?page=applications_overview" 
+                           class="nav-link <?= $page === 'applications_overview' ? 'active' : '' ?>">
                             <div class="nav-icon"><i class="fas fa-file-alt"></i></div>
-                            <div class="nav-label">Applications</div>
+                            <div class="nav-label">Applications Overview</div>
                         </a>
                         <a href="dashboard.php?page=employee_tracking" 
                            class="nav-link <?= $page === 'employee_tracking' ? 'active' : '' ?>">
@@ -124,18 +124,18 @@ $user_role = htmlspecialchars(ucfirst($u['role']));
                             <div class="nav-icon"><i class="fas fa-edit"></i></div>
                             <div class="nav-label">Manage Vacancies</div>
                         </a>
-                       <!--  <a href="dashboard.php?page=approvals" 
-                           class="nav-link <?= $page === 'approvals' ? 'active' : '' ?>">
-                            <div class="nav-icon"><i class="fas fa-user-check"></i></div>
-                            <div class="nav-label">Approvals</div>
-                        </a> -->
-
-                    <?php else: ?>
+                    
+                    <?php else: // For applicants ?>
                         <a href="dashboard.php?page=my_applications" 
                            class="nav-link <?= $page === 'my_applications' ? 'active' : '' ?>">
                             <div class="nav-icon"><i class="fas fa-file-alt"></i></div>
                             <div class="nav-label">My Applications</div>
                         </a>
+                        <a href="dashboard.php?page=personal_data" 
+                            class="nav-link <?= $page === 'personal_data' ? 'active' : '' ?>">
+                                <div class="nav-icon"><i class="fas fa-user-tie"></i></div>
+                                <div class="nav-label">Personal Data</div>
+                            </a>
                         <a href="dashboard.php?page=profile" 
                            class="nav-link <?= $page === 'profile' ? 'active' : '' ?>">
                             <div class="nav-icon"><i class="fas fa-user"></i></div>
@@ -144,28 +144,13 @@ $user_role = htmlspecialchars(ucfirst($u['role']));
                     <?php endif; ?>
                 </div>
             </div>
-            
-           <!--  <?php if ($u['role'] === 'admin' || $u['role'] === 'clerk'): ?>
-            <div class="nav-section">
-                <div class="nav-title">Reports & Analytics</div>
-                <div class="nav-links">
-                    <a href="#" class="nav-link">
-                        <div class="nav-icon"><i class="fas fa-chart-bar"></i></div>
-                        <div class="nav-label">Analytics</div>
-                    </a>
-                    <a href="#" class="nav-link">
-                        <div class="nav-icon"><i class="fas fa-download"></i></div>
-                        <div class="nav-label">Export Data</div>
-                    </a>
-                </div>
-            </div> -->
-            <?php endif; ?>
         </div>
 
         <div class="sidebar-footer">
             <button class="sidebar-toggle" id="sidebarToggle">
                 <i class="fas fa-chevron-left"></i>
             </button>
+            <!-- LOGOUT BUTTON - ALWAYS VISIBLE -->
             <a href="logout.php" class="logout-link">
                 <div class="logout-icon"><i class="fas fa-sign-out-alt"></i></div>
                 <div class="logout-label">Logout</div>
@@ -204,11 +189,24 @@ $user_role = htmlspecialchars(ucfirst($u['role']));
         <div class="content-wrapper">
             <div class="page-content">
                 <?php 
+                // Always show content for applicants
                 $page_file = __DIR__ . "/{$page}.php";
                 if (file_exists($page_file)) {
                     include $page_file;
                 } else {
-                    echo '<div class="alert alert-error">Page not found: ' . htmlspecialchars($page) . '</div>';
+                    // Fallback for applicants if page doesn't exist
+                    if ($u['role'] === 'applicant') {
+                        if ($page === 'vacancies') {
+                            // Include the vacancies.php file
+                            include __DIR__ . '/vacancies.php';
+                        } elseif ($page === 'my_applications') {
+                            echo '<div class="alert alert-info">My Applications page will be available soon.</div>';
+                        } elseif ($page === 'profile') {
+                            echo '<div class="alert alert-info">Profile page will be available soon.</div>';
+                        }
+                    } else {
+                        echo '<div class="alert alert-error">Page not found: ' . htmlspecialchars($page) . '</div>';
+                    }
                 }
                 ?>
             </div>
@@ -266,43 +264,23 @@ $user_role = htmlspecialchars(ucfirst($u['role']));
             }
         });
         
-        // Highlight current page in navigation
-        const currentPath = window.location.pathname + window.location.search;
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            if (link.href === window.location.href) {
-                link.classList.add('active');
-            }
-        });
-        
         // Auto-collapse sidebar on mobile
         if (window.innerWidth <= 768) {
             sidebar.classList.add('collapsed');
             localStorage.setItem('sidebarCollapsed', 'true');
         }
         
-        // Smooth transitions
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                if (this.href === window.location.href) {
-                    e.preventDefault();
-                    return;
-                }
-                
-                // Add loading state
-                document.querySelector('.page-content').style.opacity = '0.5';
-                
-                // Close mobile menu after click
-                if (window.innerWidth <= 1024) {
-                    sidebar.classList.remove('mobile-open');
-                }
-            });
-        });
-        
-        // Restore page content opacity after navigation
-        window.addEventListener('pageshow', function() {
-            document.querySelector('.page-content').style.opacity = '1';
-        });
+        // Fix for applicant pages
+        const pageContent = document.querySelector('.page-content');
+        if (pageContent && pageContent.innerHTML.trim() === '') {
+            // If content is empty, show a message
+            pageContent.innerHTML = `
+                <div class="alert alert-info">
+                    <h3>Welcome, <?= $user_name ?>!</h3>
+                    <p>Please select a page from the sidebar to get started.</p>
+                </div>
+            `;
+        }
     });
   </script>
 </body>

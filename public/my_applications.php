@@ -131,14 +131,14 @@ $apps = $st->fetchAll();
             <h4>No Applications Yet</h4>
             <p>You haven't applied to any job vacancies yet.</p>
             <p>Browse available positions and submit your applications.</p>
-            <div class="action-links">
+          <!--   <div class="action-links">
                 <a href="vacancies.php" class="action-link">
                     <i class="fas fa-briefcase"></i> Browse Job Vacancies
                 </a>
                 <a href="index.php" class="action-link secondary">
                     <i class="fas fa-home"></i> Back to Dashboard
                 </a>
-            </div>
+            </div> -->
         </div>
         <?php endif; ?>
 

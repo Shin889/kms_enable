@@ -12,7 +12,7 @@ function email_exists(string $email): bool {
 }
 
 function create_user(array $data, string $role = 'applicant', bool $self_register = true): string {
-  $allowed_roles = ['applicant', 'clerk', 'admin'];
+  $allowed_roles = ['applicant', 'president', 'admin'];
   if (!in_array($role, $allowed_roles, true)) {
     $role = 'applicant';
   }
@@ -32,7 +32,7 @@ function create_user(array $data, string $role = 'applicant', bool $self_registe
 
   $uid = uuid();
 
-  $status = ($role === 'clerk' && $self_register) ? 'pending' : 'active';
+  $status = ($role === 'president' && $self_register) ? 'pending' : 'active';
 
   $st = db()->prepare("
     INSERT INTO users (
@@ -58,8 +58,8 @@ function create_applicant(array $data): string {
   return create_user($data, 'applicant', true);
 }
 
-function create_clerk(array $data, bool $self_register = true): string {
-  return create_user($data, 'clerk', $self_register);
+function create_president(array $data, bool $self_register = true): string {
+  return create_user($data, 'president', $self_register);
 }
 
 function login(string $email, string $password): bool {
