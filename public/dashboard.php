@@ -17,7 +17,6 @@ $allowed_pages = [
     'messages',
     'vacancy_manage',
     'my_applications',
-    'profile',
     'approvals',
     'personal_data'
 ];
@@ -45,6 +44,38 @@ $page_titles = [
 $page_title = $page_titles[$page] ?? 'Dashboard';
 $user_name = htmlspecialchars(trim($u['firstName'] . ' ' . $u['lastName']));
 $user_role = htmlspecialchars(ucfirst($u['role']));
+
+$profilePictureUrl = '';
+if ($u['role'] === 'applicant') {
+    try {
+        $stmt = db()->prepare("SELECT profile_picture FROM applicant_profiles WHERE applicant_uid = ?");
+        $stmt->execute([$u['uid']]);
+        $profileData = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!empty($profileData['profile_picture'])) {
+            $profilePicPath = $profileData['profile_picture'];
+            
+            // Construct full URL for the profile picture
+            $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'];
+            $scriptPath = $_SERVER['SCRIPT_NAME'];
+            $scriptDir = dirname($scriptPath);
+            $baseDir = str_replace('/public', '', $scriptDir);
+            $baseDir = rtrim($baseDir, '/');
+            
+            $profilePictureUrl = $protocol . '://' . $host . $baseDir . '/uploads/' . $profilePicPath;
+            
+            // Verify file exists
+            $fullPath = realpath(__DIR__ . '/../uploads/' . $profilePicPath);
+            if ($fullPath && file_exists($fullPath)) {
+                $profilePictureUrl .= '?t=' . filemtime($fullPath);
+            }
+        }
+    } catch (Exception $e) {
+        // Silently fail - use default avatar
+        error_log("Error fetching profile picture: " . $e->getMessage());
+    }
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -67,14 +98,25 @@ $user_role = htmlspecialchars(ucfirst($u['role']));
         </div>
 
         <div class="user-info">
-            <div class="user-avatar">
+    <?php if (!empty($profilePictureUrl) && $u['role'] === 'applicant'): ?>
+        <div class="user-avatar profile-picture-avatar">
+            <img src="<?= htmlspecialchars($profilePictureUrl) ?>" 
+                 alt="<?= htmlspecialchars($user_name) ?>"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <!-- <div class="avatar-fallback">
                 <?= strtoupper(substr($u['firstName'], 0, 1) . substr($u['lastName'], 0, 1)) ?>
-            </div>
-            <div class="user-details">
-                <div class="user-name"><?= $user_name ?></div>
-                <div class="user-role"><?= $user_role ?></div>
-            </div>
+            </div> -->
         </div>
+    <?php else: ?>
+        <div class="user-avatar">
+            <?= strtoupper(substr($u['firstName'], 0, 1) . substr($u['lastName'], 0, 1)) ?>
+        </div>
+    <?php endif; ?>
+    <div class="user-details">
+        <div class="user-name"><?= $user_name ?></div>
+        <div class="user-role"><?= $user_role ?></div>
+    </div>
+</div>
 
         <div class="sidebar-nav">
             <div class="nav-section">
@@ -136,11 +178,7 @@ $user_role = htmlspecialchars(ucfirst($u['role']));
                                 <div class="nav-icon"><i class="fas fa-user-tie"></i></div>
                                 <div class="nav-label">Personal Data</div>
                             </a>
-                        <a href="dashboard.php?page=profile" 
-                           class="nav-link <?= $page === 'profile' ? 'active' : '' ?>">
-                            <div class="nav-icon"><i class="fas fa-user"></i></div>
-                            <div class="nav-label">My Profile</div>
-                        </a>
+                       
                     <?php endif; ?>
                 </div>
             </div>
@@ -175,14 +213,26 @@ $user_role = htmlspecialchars(ucfirst($u['role']));
                     <i class="fas fa-bars"></i>
                 </button>
                 
-                <div class="user-menu">
-                    <a href="dashboard.php?page=profile" class="nav-link" style="padding: 8px 12px; background: var(--bg-2); border-radius: 8px;">
-                        <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px;">
-                            <?= strtoupper(substr($u['firstName'], 0, 1) . substr($u['lastName'], 0, 1)) ?>
-                        </div>
-                        <div class="nav-label"><?= $user_name ?></div>
-                    </a>
-                </div>
+               <<div class="user-menu">
+    <a href="profile.php" class="nav-link" style="padding: 8px 12px; background: var(--bg-2); border-radius: 8px;">
+        <?php if (!empty($profilePictureUrl) && $u['role'] === 'applicant'): ?>
+            <div class="user-avatar profile-picture-avatar" style="width: 32px; height: 32px; position: relative;">
+                <img src="<?= htmlspecialchars($profilePictureUrl) ?>" 
+                     alt="<?= htmlspecialchars($user_name) ?>"
+                     style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <!-- <div class="avatar-fallback" style="display: none; width: 100%; height: 100%; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+                    <?= strtoupper(substr($u['firstName'], 0, 1) . substr($u['lastName'], 0, 1)) ?>
+                </div> -->
+            </div>
+        <?php else: ?>
+            <div class="user-avatar" style="width: 32px; height: 32px; font-size: 14px;">
+                <?= strtoupper(substr($u['firstName'], 0, 1) . substr($u['lastName'], 0, 1)) ?>
+            </div>
+        <?php endif; ?>
+        <div class="nav-label"><?= $user_name ?></div>
+    </a>
+</div>
             </div>
         </div>
 

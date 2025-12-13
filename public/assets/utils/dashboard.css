@@ -538,3 +538,45 @@
     .page-content {
       opacity: 1 !important;
     }
+
+    /* profile picture */
+    /* Profile picture avatar styles */
+.user-avatar.profile-picture-avatar {
+    position: relative;
+    overflow: hidden;
+}
+
+.user-avatar.profile-picture-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.user-avatar.profile-picture-avatar .avatar-fallback {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+/* Sidebar user avatar specific */
+.sidebar .user-avatar.profile-picture-avatar {
+    width: 64px;
+    height: 64px;
+    font-size: 24px;
+}
+
+/* Topbar user avatar specific */
+.topbar-actions .user-avatar.profile-picture-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}

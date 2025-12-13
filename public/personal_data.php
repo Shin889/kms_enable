@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../src/init.php';
+require_once __DIR__ . '/../src/upload.php';
 $u = current_user();
 
 if (!$u) {
@@ -23,6 +24,26 @@ if (!$user_uid) {
 $personalData = [];
 $error = '';
 $success = '';
+
+function debugProfilePic($profilePicPath, $user_uid) {
+    if (empty($profilePicPath)) {
+        return "No profile picture path in database.";
+    }
+    
+    $fullPath = __DIR__ . '/../' . $profilePicPath;
+    
+    if (!file_exists($fullPath)) {
+        return "File doesn't exist: " . htmlspecialchars($fullPath);
+    }
+    
+    if (!is_readable($fullPath)) {
+        return "File exists but is not readable: " . htmlspecialchars($fullPath);
+    }
+    
+    // Check file permissions
+    $perms = fileperms($fullPath);
+    return "File exists and is readable. Permissions: " . substr(sprintf('%o', $perms), -4);
+}
 
 // Check if applicant profile exists
 try {
@@ -102,29 +123,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = $_POST;
         
         // Handle file upload for profile picture
-        $profilePicturePath = $personalData['profile_picture'] ?? '';
-        if (isset($_FILES['profilepicture']) && $_FILES['profilepicture']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../uploads/profiles/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-            
-            $filename = uniqid() . '_' . basename($_FILES['profilepicture']['name']);
-            $targetPath = $uploadDir . $filename;
-            
-            if (move_uploaded_file($_FILES['profilepicture']['tmp_name'], $targetPath)) {
-                $profilePicturePath = 'uploads/profiles/' . $filename;
-                
-                // Delete old profile picture if exists
-                if (!empty($personalData['profile_picture'])) {
-                    $oldPath = __DIR__ . '/../' . $personalData['profile_picture'];
-                    if (file_exists($oldPath)) {
-                        unlink($oldPath);
-                    }
-                }
+$profilePicturePath = $personalData['profile_picture'] ?? '';
+if (isset($_FILES['profilepicture']) && $_FILES['profilepicture']['error'] === UPLOAD_ERR_OK) {
+    $uploadResult = accept_upload($_FILES['profilepicture'], 'profile_pictures');
+    
+    if ($uploadResult !== null) {
+        $profilePicturePath = $uploadResult; // This will be like 'profile_pictures/filename.jpg'
+        
+        // Delete old profile picture if exists
+        if (!empty($personalData['profile_picture'])) {
+            $oldPath = __DIR__ . '/../uploads/' . $personalData['profile_picture'];
+            if (file_exists($oldPath) && is_file($oldPath)) {
+                unlink($oldPath);
             }
         }
-        
+    } else {
+        $error = "Failed to upload profile picture. Invalid file type or upload error.";
+    }
+}
+    
         // Prepare the update query
         $updateFields = [
             'firstname' => $data['firstname'] ?? $u['firstName'] ?? '',
@@ -243,7 +260,48 @@ if (!empty($personalData['other_details'])) {
 ?>
 
 <style>
-    .personal-data-container {
+
+        :root {
+        /* Primary Colors */
+        --primary: #3b82f6;
+        --primary-600: #2563eb;
+        --primary-light: #dbeafe;
+        
+        /* Danger Colors */
+        --danger: #ef4444;
+        --danger-dark: #dc2626;
+        
+        /* Background Colors */
+        --bg: #f8fafc;
+        --bg-2: #f1f5f9;
+        --card: #ffffff;
+        --input: #ffffff;
+        
+        /* Text Colors */
+        --text: #1e293b;
+        --muted: #64748b;
+        
+        /* Border & Shadow */
+        --border: #e2e8f0;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Reset some defaults */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        padding: 20px;
+    }
+    
+     .personal-data-container {
         max-width: 1400px;
         margin: 0 auto;
     }
@@ -945,59 +1003,94 @@ if (!empty($personalData['other_details'])) {
             </div>
         </div>
         
-        <!-- SECTION 3: CONTACT INFORMATION & PROFILE -->
-        <div class="section-card">
-            <div class="section-header">
-                <i class="fas fa-phone"></i>
-                <h2>Contact Information & Profile</h2>
+<!-- SECTION 3: CONTACT INFORMATION & PROFILE -->
+<div class="section-card">
+    <div class="section-header">
+        <i class="fas fa-phone"></i>
+        <h2>Contact Information & Profile</h2>
+    </div>
+    
+    <div class="form-row">
+        <!-- Profile Picture -->
+        <div class="form-group">
+            <div class="profile-picture-container">
+                <label class="form-label">Profile Picture</label>
+<div class="profile-picture" id="profilePictureContainer">
+    <?php 
+    $profilePicPath = $personalData['profile_picture'] ?? '';
+    
+    if (!empty($profilePicPath)) {
+        // Get protocol (http or https)
+        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+        
+        // Get hostname (localhost or your domain)
+        $host = $_SERVER['HTTP_HOST'];
+        
+        // Get base path (kms_enable)
+        $scriptPath = $_SERVER['SCRIPT_NAME'];
+        $scriptDir = dirname($scriptPath);
+        
+        // Remove 'public' if it's in the path
+        $baseDir = str_replace('/public', '', $scriptDir);
+        $baseDir = rtrim($baseDir, '/');
+        
+        // Construct full URL: http://localhost/kms_enable/uploads/profile_pictures/filename.jpg
+        $imageUrl = $protocol . '://' . $host . $baseDir . '/uploads/' . $profilePicPath;
+        
+        // Check if file exists on server
+        $fullPath = realpath(__DIR__ . '/../uploads/' . $profilePicPath);
+        
+        if ($fullPath && file_exists($fullPath)) {
+            // Add timestamp to prevent browser caching
+            $timestamp = filemtime($fullPath);
+            echo '<img src="' . htmlspecialchars($imageUrl . '?t=' . $timestamp) . '" 
+                 alt="Profile Picture" 
+                 id="profileImagePreview"
+                 onerror="handleImageError(this)">';
+            echo '<i class="fas fa-user" style="display: none;"></i>';
+        } else {
+            echo '<i class="fas fa-user"></i>';
+            echo '<!-- File missing: ' . htmlspecialchars($profilePicPath) . ' -->';
+        }
+    } else {
+        echo '<i class="fas fa-user"></i>';
+    }
+    ?>
+    
+    <label for="profilePicture" class="profile-upload-btn">
+        <i class="fas fa-camera"></i>
+    </label>
+</div>
+                <input type="file" id="profilePicture" name="profilepicture" accept="image/*" 
+                       class="d-none" onchange="previewImage(event)">
+                <small class="text-muted">Recommended: 150x150 px, Max 2MB</small>
+            </div>
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="form-group" style="flex: 2;">
+            <h3><i class="fas fa-phone me-2"></i>Contact Information</h3>
+            
+            <div class="form-group">
+                <label class="form-label">Mobile Number</label>
+                <div class="input-group">
+                    <span class="input-icon"><i class="fas fa-mobile-alt"></i></span>
+                    <input type="tel" class="form-control" name="mobilenumber" 
+                           placeholder="09XX-XXX-XXXX" value="<?= htmlspecialchars($personalData['mobilenumber'] ?? '') ?>">
+                </div>
             </div>
             
-            <div class="form-row">
-                <!-- Profile Picture -->
-                <div class="form-group">
-                    <div class="profile-picture-container">
-                        <label class="form-label">Profile Picture</label>
-                        <div class="profile-picture" id="profilePictureContainer">
-                            <?php if (!empty($personalData['profile_picture'])): ?>
-                                <img src="<?= htmlspecialchars($personalData['profile_picture']) ?>" 
-                                     alt="Profile Picture" id="profileImagePreview">
-                            <?php else: ?>
-                                <i class="fas fa-user"></i>
-                            <?php endif; ?>
-                            <label for="profilePicture" class="profile-upload-btn">
-                                <i class="fas fa-camera"></i>
-                            </label>
-                        </div>
-                        <input type="file" id="profilePicture" name="profilepicture" accept="image/*" 
-                               class="d-none" onchange="previewImage(event)">
-                        <small class="text-muted">Recommended: 150x150 px, Max 2MB</small>
-                    </div>
-                </div>
-                
-                <!-- Contact Information -->
-                <div class="form-group" style="flex: 2;">
-                    <h3><i class="fas fa-phone me-2"></i>Contact Information</h3>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Mobile Number</label>
-                        <div class="input-group">
-                            <span class="input-icon"><i class="fas fa-mobile-alt"></i></span>
-                            <input type="tel" class="form-control" name="mobilenumber" 
-                                   placeholder="09XX-XXX-XXXX" value="<?= htmlspecialchars($personalData['mobilenumber'] ?? '') ?>">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Telephone Number</label>
-                        <div class="input-group">
-                            <span class="input-icon"><i class="fas fa-phone"></i></span>
-                            <input type="tel" class="form-control" name="telephonenumber" 
-                                   placeholder="02-XXXX-XXXX" value="<?= htmlspecialchars($personalData['telephonenumber'] ?? '') ?>">
-                        </div>
-                    </div>
+            <div class="form-group">
+                <label class="form-label">Telephone Number</label>
+                <div class="input-group">
+                    <span class="input-icon"><i class="fas fa-phone"></i></span>
+                    <input type="tel" class="form-control" name="telephonenumber" 
+                           placeholder="02-XXXX-XXXX" value="<?= htmlspecialchars($personalData['telephonenumber'] ?? '') ?>">
                 </div>
             </div>
         </div>
+    </div>
+</div>
         
         <!-- SECTION 4: GOVERNMENT IDs -->
         <div class="section-card">
@@ -1420,32 +1513,71 @@ if (!empty($personalData['other_details'])) {
 </div>
 
 <script>
-    function previewImage(event) {
-        const input = event.target;
-        const container = document.getElementById('profilePictureContainer');
-        
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                const img = container.querySelector('img');
-                if (img) {
-                    img.src = e.target.result;
-                } else {
-                    const icon = container.querySelector('i');
-                    if (icon) icon.remove();
-                    
-                    const newImg = document.createElement('img');
-                    newImg.id = 'profileImagePreview';
-                    newImg.src = e.target.result;
-                    newImg.alt = 'Profile Picture';
-                    container.prepend(newImg);
-                }
-            }
-            
-            reader.readAsDataURL(input.files[0]);
-        }
+// Image error handler
+function handleImageError(img) {
+    console.error('Image failed to load:', img.src);
+    img.style.display = 'none';
+    const icon = img.nextElementSibling;
+    if (icon && icon.classList.contains('fa-user')) {
+        icon.style.display = 'flex';
     }
+}
+
+function previewImage(event) {
+    const input = event.target;
+    const container = document.getElementById('profilePictureContainer');
+    
+    if (input.files && input.files[0]) {
+        // Validate file size (max 2MB)
+        if (input.files[0].size > 2 * 1024 * 1024) {
+            alert('File is too large. Maximum size is 2MB.');
+            input.value = '';
+            return;
+        }
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(input.files[0].type)) {
+            alert('Invalid file type. Please upload an image (JPEG, PNG, GIF).');
+            input.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const img = container.querySelector('img');
+            const icon = container.querySelector('i');
+            
+            if (img) {
+                img.src = e.target.result;
+                img.style.display = 'block';
+                if (icon) icon.style.display = 'none';
+            } else {
+                // Hide icon
+                if (icon) icon.style.display = 'none';
+                
+                // Create new image
+                const newImg = document.createElement('img');
+                newImg.id = 'profileImagePreview';
+                newImg.src = e.target.result;
+                newImg.alt = 'Profile Picture';
+                newImg.style.width = '100%';
+                newImg.style.height = '100%';
+                newImg.style.objectFit = 'cover';
+                newImg.onerror = function() { handleImageError(this); };
+                container.prepend(newImg);
+            }
+        }
+        
+        reader.onerror = function() {
+            alert('Error reading file. Please try another image.');
+            input.value = '';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
     
     document.getElementById('sameAddressToggle').addEventListener('change', function() {
         const isChecked = this.checked;

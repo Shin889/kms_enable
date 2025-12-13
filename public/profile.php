@@ -1,6 +1,31 @@
 <?php
 require_once __DIR__ . '/../src/init.php';
 
+// Helper function to get full profile picture URL
+function getProfilePictureUrl($profilePicturePath) {
+    if (empty($profilePicturePath)) {
+        return null;
+    }
+    
+    // Construct full URL for the profile picture
+    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $scriptPath = $_SERVER['SCRIPT_NAME'];
+    $scriptDir = dirname($scriptPath);
+    $baseDir = str_replace('/public', '', $scriptDir);
+    $baseDir = rtrim($baseDir, '/');
+    
+    $profilePictureUrl = $protocol . '://' . $host . $baseDir . '/uploads/' . $profilePicturePath;
+    
+    // Verify file exists and add timestamp
+    $fullPath = realpath(__DIR__ . '/../uploads/' . $profilePicturePath);
+    if ($fullPath && file_exists($fullPath)) {
+        return $profilePictureUrl . '?t=' . filemtime($fullPath);
+    }
+    
+    return $profilePictureUrl;
+}
+
 $user = current_user();
 if (!$user) {
     redirect('login.php');
@@ -123,8 +148,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uid === $view_uid && $user['role']
             <div class="leftbar">
                 <div class="profile-header">
                     <div class="profile-pic">
-                        <?php if (!empty($profile['profile_picture'])): ?>
-                            <img src="<?= htmlspecialchars($profile['profile_picture']) ?>" alt="Profile Picture" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+                        <?php 
+                        $profilePicUrl = !empty($profile['profile_picture']) 
+                            ? getProfilePictureUrl($profile['profile_picture']) 
+                            : null;
+                        
+                        if (!empty($profilePicUrl)): ?>
+                            <img src="<?= htmlspecialchars($profilePicUrl) ?>" 
+                                 alt="Profile Picture" 
+                                 style="width:100%;height:100%;border-radius:50%;object-fit:cover;"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <!-- <div style="display: none; width: 100%; height: 100%; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                <i class="fas fa-user"></i>
+                            </div> -->
                         <?php else: ?>
                             <i class="fas fa-user"></i>
                         <?php endif; ?>
@@ -164,6 +200,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uid === $view_uid && $user['role']
                         <span><?= htmlspecialchars($usr['userName'] ?? '') ?></span>
                     </div>
                 </div>
+
+                <!-- In the sidebar section, after contact info -->
+<div class="sidebar-actions" style="margin-top: 20px; padding: 15px; background: var(--light); border-radius: 8px;">
+    <h5 style="margin-top: 0; font-size: 14px; color: var(--dark);">
+        <i class="fas fa-tasks"></i> Quick Actions
+    </h5>
+    
+    <a href="personal_data.php" class="sidebar-btn" style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; margin-bottom: 8px; text-decoration: none; color: var(--dark); border: 1px solid var(--border);">
+        <i class="fas fa-id-card" style="margin-right: 10px; color: var(--primary);"></i>
+        <span>Personal Data</span>
+    </a>
+    
+    <a href="my_applications.php" class="sidebar-btn" style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; text-decoration: none; color: var(--dark); border: 1px solid var(--border);">
+        <i class="fas fa-file-alt" style="margin-right: 10px; color: var(--primary);"></i>
+        <span>My Applications</span>
+    </a>
+</div>
             </div>
 
             <!-- Main Content -->
@@ -208,13 +261,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uid === $view_uid && $user['role']
                                         <span>PNG, JPG, GIF up to 2MB</span>
                                         <input type="file" name="profile_picture" accept="image/*">
                                     </div>
-                                    <?php if (!empty($profile['profile_picture'])): ?>
+                                    <?php if (!empty($profile['profile_picture'])): 
+                                        $currentProfilePicUrl = getProfilePictureUrl($profile['profile_picture']);
+                                    ?>
                                         <div class="file-list">
                                             <div class="file-item">
                                                 <i class="fas fa-image"></i>
-                                                <a href="<?= htmlspecialchars($profile['profile_picture']) ?>" target="_blank">
-                                                    Current Profile Picture
-                                                </a>
+                                                <?php if (!empty($currentProfilePicUrl)): ?>
+                                                    <a href="<?= htmlspecialchars($currentProfilePicUrl) ?>" target="_blank">
+                                                        Current Profile Picture
+                                                    </a>
+                                                <?php else: ?>
+                                                    <span>Current Profile Picture</span>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     <?php endif; ?>
@@ -256,10 +315,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uid === $view_uid && $user['role']
                                 <?php if (!empty($profile['requirements_docs'])):
                                     $reqs = json_decode($profile['requirements_docs'], true); ?>
                                     <div class="file-list">
-                                        <?php foreach ($reqs as $r): ?>
+                                        <?php foreach ($reqs as $r): 
+                                            $reqUrl = getProfilePictureUrl($r);
+                                        ?>
                                             <div class="file-item">
                                                 <i class="fas fa-file-pdf"></i>
-                                                <a href="<?= htmlspecialchars($r) ?>" target="_blank"><?= basename($r) ?></a>
+                                                <a href="<?= htmlspecialchars($reqUrl) ?>" target="_blank"><?= basename($r) ?></a>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -270,6 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uid === $view_uid && $user['role']
                                 <button type="submit" class="btn">
                                     <i class="fas fa-save"></i> Save Profile
                                 </button>
+                                
                                 <a href="dashboard.php" class="btn btn-secondary">
                                     <i class="fas fa-times"></i> Cancel
                                 </a>
@@ -347,10 +409,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uid === $view_uid && $user['role']
                             <div class="section" style="margin-top: 20px;">
                                 <h5 style="font-size: 16px; margin-bottom: 12px;">Requirements Documents</h5>
                                 <div class="file-list">
-                                    <?php foreach ($reqs as $r): ?>
+                                    <?php foreach ($reqs as $r): 
+                                        $reqUrl = getProfilePictureUrl($r);
+                                    ?>
                                         <div class="file-item">
                                             <i class="fas fa-file-pdf"></i>
-                                            <a href="<?= htmlspecialchars($r) ?>" target="_blank"><?= basename($r) ?></a>
+                                            <a href="<?= htmlspecialchars($reqUrl) ?>" target="_blank"><?= basename($r) ?></a>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -378,7 +442,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uid === $view_uid && $user['role']
                             </div>
                             <?php endif; ?>
                             <?php if (!empty($employment['monitoring_start_date'])): ?>
-                            <div class="info-item">
+                            <div="info-item">
                                 <h5>Monitoring Start</h5>
                                 <p><?= date('M j, Y', strtotime($employment['monitoring_start_date'])) ?></p>
                             </div>
@@ -400,9 +464,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uid === $view_uid && $user['role']
                 <?php endif; ?>
                 
                 <div class="action-buttons">
-                  <!--   <a href="dashboard.php" class="back-link">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a> -->
                     <?php if ($uid !== $view_uid && in_array($user['role'], ['president', 'admin'])): ?>
                         <a href="applications.php?uid=<?= $view_uid ?>" class="btn">
                             <i class="fas fa-file-alt"></i> View Applications

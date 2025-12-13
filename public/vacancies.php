@@ -1,8 +1,18 @@
 <?php require_once __DIR__ . '/../src/init.php';
 
-$st = db()->query("SELECT * FROM job_vacancies WHERE status='open' ORDER BY date_posted DESC");
+// Get current date for filtering expired vacancies
+$currentDateTime = date('Y-m-d H:i:s');
+
+// Only fetch vacancies that are open AND not expired
+$st = db()->query("SELECT * FROM job_vacancies 
+                  WHERE status='open' 
+                  AND application_deadline > '$currentDateTime' 
+                  ORDER BY date_posted DESC");
 $vacancies = $st->fetchAll();
 $u = current_user();
+
+// Count active vacancies (non-expired)
+$activeVacanciesCount = 0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,7 +23,23 @@ $u = current_user();
     <title>Job Vacancies | KMS Enable Recruitment</title>
     <link rel="stylesheet" href="assets/utils/vacancies.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <style>
+        .expired-row {
+            opacity: 0.6;
+            background-color: #f8f9fa !important;
+        }
+        
+        .expired-badge {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+        
+        .disabled-btn {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -46,7 +72,7 @@ $u = current_user();
         </div>
 
         <div class="results-info" id="resultsInfo">
-            Showing <span id="resultCount"><?= isset($vacancies) ? count($vacancies) : 0 ?></span> job vacancies
+            Showing <span id="resultCount">0</span> job vacancies
         </div>
 
         <div class="vacancies-table-container">
@@ -56,33 +82,41 @@ $u = current_user();
                         <th><i class="fas fa-briefcase"></i> Job Title</th>
                         <th><i class="fas fa-calendar"></i> Date Posted</th>
                         <th><i class="fas fa-clock"></i> Deadline</th>
-                      <!--   <th><i class="fas fa-tools"></i> Skills Required</th> -->
                         <th><i class="fas fa-cogs"></i> Actions</th>
                     </tr>
                 </thead>
                 <tbody id="vacanciesBody">
-                    <?php if (isset($vacancies) && !empty($vacancies)): ?>
-                        <?php foreach ($vacancies as $v): 
-                            $deadlineClass = '';
-                            $deadline = strtotime($v['application_deadline']);
-                            $now = time();
-                            $daysLeft = floor(($deadline - $now) / (60 * 60 * 24));
+                    <?php 
+                    $currentTime = new DateTime();
+                    if (isset($vacancies) && !empty($vacancies)): 
+                        foreach ($vacancies as $v): 
+                            // Check if vacancy is still active (not expired)
+                            $deadlineDate = new DateTime($v['application_deadline']);
+                            $isExpired = $deadlineDate < $currentTime;
                             
-                            if ($daysLeft <= 3) {
-                                $deadlineClass = 'urgent';
-                            } else {
-                                $deadlineClass = 'normal';
+                            // Skip expired vacancies completely
+                            if ($isExpired) {
+                                continue;
                             }
                             
+                            $activeVacanciesCount++;
+                            
+                            // Calculate days left
+                            $now = time();
+                            $deadlineTimestamp = strtotime($v['application_deadline']);
+                            $daysLeft = floor(($deadlineTimestamp - $now) / (60 * 60 * 24));
+                            
+                            // Set deadline badge class
+                            $deadlineClass = 'normal';
+                            if ($daysLeft <= 3) {
+                                $deadlineClass = 'urgent';
+                            }
+                            
+                            // Parse skills
                             $skillsData = json_decode($v['skills_required'], true);
                             $skills = [];
-                            
                             if (is_array($skillsData)) {
-                                if (isset($skillsData['skills'])) {
-                                    $skills = $skillsData['skills'];
-                                } else {
-                                    $skills = $skillsData;
-                                }
+                                $skills = isset($skillsData['skills']) ? $skillsData['skills'] : $skillsData;
                             }
                         ?>
                             <tr class="vacancy-row" 
@@ -90,7 +124,8 @@ $u = current_user();
                                 data-title="<?= strtolower(htmlspecialchars($v['job_title'])) ?>" 
                                 data-date="<?= $v['date_posted'] ?>"
                                 data-deadline="<?= $v['application_deadline'] ?>"
-                                data-id="<?= $v['vacancy_id'] ?>">
+                                data-id="<?= $v['vacancy_id'] ?>"
+                                data-days-left="<?= $daysLeft ?>">
                                 
                                 <td class="job-title-cell">
                                     <?= htmlspecialchars($v['job_title']) ?>
@@ -112,17 +147,6 @@ $u = current_user();
                                         <i class="fas fa-clock"></i> <?= date('M j, Y', strtotime($v['application_deadline'])) ?>
                                     </span>
                                 </td>
-                                
-                                <!-- <td class="skills-cell">
-                                    <div class="skills-list">
-                                        <?php foreach (array_slice($skills, 0, 3) as $skill): ?>
-                                            <span class="skill-tag"><?= htmlspecialchars($skill) ?></span>
-                                        <?php endforeach; ?>
-                                        <?php if (count($skills) > 3): ?>
-                                            <span class="skill-tag">+<?= count($skills) - 3 ?> more</span>
-                                        <?php endif; ?>
-                                    </div>
-                                </td> -->
                                 
                                 <td class="action-cell">
                                     <button class="toggle-details-btn" data-id="<?= $v['vacancy_id'] ?>">
@@ -153,7 +177,7 @@ $u = current_user();
                                                 <h5>Additional Information</h5>
                                                 <p><strong>Slots Available:</strong> <?= htmlspecialchars($v['candidate_slot'] ?? 'N/A') ?></p>
                                                 <p><strong>Application Deadline:</strong> <?= date('F j, Y', strtotime($v['application_deadline'])) ?></p>
-                                                <p><strong>Days Left:</strong> <?= $daysLeft ?> days</p>
+                                                <p><strong>Days Left:</strong> <span class="days-left-badge"><?= $daysLeft ?> days</span></p>
                                             </div>
                                         </div>
                                         
@@ -190,6 +214,23 @@ $u = current_user();
                                 </td>
                             </tr>
                         <?php endforeach; ?>
+                        
+                        <?php if ($activeVacanciesCount === 0): ?>
+                            <tr class="no-results-row">
+                                <td colspan="5">
+                                    <div class="no-results">
+                                        <div class="no-results-icon"><i class="fas fa-briefcase"></i></div>
+                                        <h4>No Active Job Vacancies</h4>
+                                        <p>All current job openings have expired or been filled.</p>
+                                        <p>Please check back later for new opportunities.</p>
+                                        <a href="index.php" class="back-link">
+                                            <i class="fas fa-home"></i> Back to Home
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                        
                     <?php else: ?>
                         <tr class="no-results-row">
                             <td colspan="5">
@@ -224,67 +265,115 @@ $u = current_user();
             const viewToggle = document.getElementById('viewToggle');
             const vacanciesBody = document.getElementById('vacanciesBody');
             const resultCount = document.getElementById('resultCount');
-            const resultsInfo = document.getElementById('resultsInfo');
             const noResults = document.getElementById('noResults');
             
-            const originalRows = Array.from(vacanciesBody.querySelectorAll('.vacancy-row'));
-            
-            // Toggle details functionality
-            document.querySelectorAll('.toggle-details-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    const detailsRow = document.getElementById('details-' + id);
-                    const icon = this.querySelector('i');
-                    
-                    if (detailsRow.classList.contains('expanded')) {
-                        detailsRow.classList.remove('expanded');
-                        icon.className = 'fas fa-chevron-down';
-                        this.innerHTML = '<i class="fas fa-chevron-down"></i> View Details';
-                    } else {
-                        // Close any other open details
-                        document.querySelectorAll('.expand-details.expanded').forEach(row => {
-                            row.classList.remove('expanded');
-                            const btnId = row.id.replace('details-', '');
-                            const btn = document.querySelector(`[data-id="${btnId}"]`);
-                            if (btn) {
-                                btn.querySelector('i').className = 'fas fa-chevron-down';
-                                btn.innerHTML = '<i class="fas fa-chevron-down"></i> View Details';
-                            }
-                        });
-                        
-                        detailsRow.classList.add('expanded');
-                        icon.className = 'fas fa-chevron-up';
-                        this.innerHTML = '<i class="fas fa-chevron-up"></i> Hide Details';
-                    }
-                });
+            // Get initial rows and filter out expired ones
+            const originalRows = Array.from(vacanciesBody.querySelectorAll('.vacancy-row')).filter(row => {
+                const deadlineStr = row.getAttribute('data-deadline');
+                if (!deadlineStr) return false;
+                
+                const deadline = new Date(deadlineStr);
+                const now = new Date();
+                return deadline > now;
             });
             
-            function updateDeadlineBadges() {
-                const badges = document.querySelectorAll('.deadline-badge');
-                const now = new Date();
+            // Set initial count
+            resultCount.textContent = originalRows.length;
+            
+            // Toggle details functionality
+            function attachToggleListeners() {
+                document.querySelectorAll('.toggle-details-btn').forEach(button => {
+                    button.removeEventListener('click', handleToggleClick);
+                    button.addEventListener('click', handleToggleClick);
+                });
+            }
+            
+            function handleToggleClick() {
+                const id = this.getAttribute('data-id');
+                const detailsRow = document.getElementById('details-' + id);
+                const icon = this.querySelector('i');
                 
-                badges.forEach(badge => {
-                    const deadlineStr = badge.getAttribute('data-deadline');
+                if (!detailsRow) return;
+                
+                if (detailsRow.classList.contains('expanded')) {
+                    detailsRow.classList.remove('expanded');
+                    icon.className = 'fas fa-chevron-down';
+                    this.innerHTML = '<i class="fas fa-chevron-down"></i> View Details';
+                } else {
+                    // Close any other open details
+                    document.querySelectorAll('.expand-details.expanded').forEach(row => {
+                        row.classList.remove('expanded');
+                        const btnId = row.id.replace('details-', '');
+                        const btn = document.querySelector(`[data-id="${btnId}"]`);
+                        if (btn) {
+                            btn.querySelector('i').className = 'fas fa-chevron-down';
+                            btn.innerHTML = '<i class="fas fa-chevron-down"></i> View Details';
+                        }
+                    });
+                    
+                    detailsRow.classList.add('expanded');
+                    icon.className = 'fas fa-chevron-up';
+                    this.innerHTML = '<i class="fas fa-chevron-up"></i> Hide Details';
+                }
+            }
+            
+            // Update deadline badges and filter expired
+            function updateDeadlineBadges() {
+                const now = new Date();
+                const rows = document.querySelectorAll('.vacancy-row');
+                
+                rows.forEach(row => {
+                    const deadlineStr = row.getAttribute('data-deadline');
                     if (deadlineStr) {
                         const deadline = new Date(deadlineStr);
                         const daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
                         
-                        badge.classList.remove('urgent', 'normal');
-                        if (daysLeft <= 3) {
-                            badge.classList.add('urgent');
-                        } else {
-                            badge.classList.add('normal');
+                        // Update days left in the data attribute
+                        row.setAttribute('data-days-left', daysLeft);
+                        
+                        // Find and update the badge
+                        const badge = row.querySelector('.deadline-badge');
+                        if (badge) {
+                            badge.classList.remove('urgent', 'normal', 'expired-badge');
+                            
+                            if (daysLeft <= 0) {
+                                badge.classList.add('expired-badge');
+                                badge.innerHTML = '<i class="fas fa-ban"></i> Expired';
+                                row.classList.add('expired-row');
+                                
+                                // Disable the view details button
+                                const btn = row.querySelector('.toggle-details-btn');
+                                if (btn) {
+                                    btn.classList.add('disabled-btn');
+                                    btn.innerHTML = '<i class="fas fa-ban"></i> Expired';
+                                }
+                            } else if (daysLeft <= 3) {
+                                badge.classList.add('urgent');
+                            } else {
+                                badge.classList.add('normal');
+                            }
                         }
                     }
                 });
             }
             
+            // Filter and sort vacancies
             function filterAndSortVacancies() {
                 const searchTerm = searchInput.value.toLowerCase();
                 const sortValue = sortSelect.value;
                 const viewValue = viewToggle.value;
                 
                 let filtered = [...originalRows];
+                const now = new Date();
+                
+                // Remove expired rows from filtered results
+                filtered = filtered.filter(row => {
+                    const deadlineStr = row.getAttribute('data-deadline');
+                    if (!deadlineStr) return false;
+                    
+                    const deadline = new Date(deadlineStr);
+                    return deadline > now;
+                });
                 
                 // Filter by search
                 if (searchTerm) {
@@ -296,7 +385,6 @@ $u = current_user();
                 }
                 
                 // Filter by view
-                const now = new Date();
                 if (viewValue === 'recent') {
                     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
                     filtered = filtered.filter(row => {
@@ -305,9 +393,8 @@ $u = current_user();
                     });
                 } else if (viewValue === 'urgent') {
                     filtered = filtered.filter(row => {
-                        const deadline = new Date(row.getAttribute('data-deadline'));
-                        const daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
-                        return daysLeft <= 3;
+                        const daysLeft = parseInt(row.getAttribute('data-days-left') || 999);
+                        return daysLeft <= 3 && daysLeft > 0;
                     });
                 }
                 
@@ -336,8 +423,8 @@ $u = current_user();
                     filtered.forEach(row => {
                         const id = row.getAttribute('data-id');
                         const detailsRow = document.getElementById('details-' + id);
-                        vacanciesBody.appendChild(row);
                         if (detailsRow) {
+                            vacanciesBody.appendChild(row);
                             vacanciesBody.appendChild(detailsRow);
                         }
                     });
@@ -354,46 +441,29 @@ $u = current_user();
                 // Update deadline badges
                 updateDeadlineBadges();
                 
-                // Reattach event listeners for toggle buttons
-                document.querySelectorAll('.toggle-details-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const id = this.getAttribute('data-id');
-                        const detailsRow = document.getElementById('details-' + id);
-                        const icon = this.querySelector('i');
-                        
-                        if (detailsRow.classList.contains('expanded')) {
-                            detailsRow.classList.remove('expanded');
-                            icon.className = 'fas fa-chevron-down';
-                            this.innerHTML = '<i class="fas fa-chevron-down"></i> View Details';
-                        } else {
-                            // Close any other open details
-                            document.querySelectorAll('.expand-details.expanded').forEach(row => {
-                                row.classList.remove('expanded');
-                                const btnId = row.id.replace('details-', '');
-                                const btn = document.querySelector(`[data-id="${btnId}"]`);
-                                if (btn) {
-                                    btn.querySelector('i').className = 'fas fa-chevron-down';
-                                    btn.innerHTML = '<i class="fas fa-chevron-down"></i> View Details';
-                                }
-                            });
-                            
-                            detailsRow.classList.add('expanded');
-                            icon.className = 'fas fa-chevron-up';
-                            this.innerHTML = '<i class="fas fa-chevron-up"></i> Hide Details';
-                        }
-                    });
-                });
+                // Reattach event listeners
+                attachToggleListeners();
             }
+            
+            // Initial setup
+            attachToggleListeners();
+            updateDeadlineBadges();
+            
+            // Set initial result count
+            const initialFilteredRows = [...originalRows].filter(row => {
+                const deadlineStr = row.getAttribute('data-deadline');
+                if (!deadlineStr) return false;
+                
+                const deadline = new Date(deadlineStr);
+                return deadline > new Date();
+            });
+            resultCount.textContent = initialFilteredRows.length;
             
             // Event listeners
             searchInput.addEventListener('input', filterAndSortVacancies);
             sortSelect.addEventListener('change', filterAndSortVacancies);
             viewToggle.addEventListener('change', filterAndSortVacancies);
-            
-            // Initial update
-            updateDeadlineBadges();
         });
     </script>
 </body>
-
 </html>
