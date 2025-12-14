@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../src/init.php';
 require_role(['admin', 'president']);
 
+$currentUser = current_user();
+
 function download_url($path) {
     if (!$path) return null;
     $path = str_replace('\\', '/', $path); 
@@ -221,6 +223,35 @@ if (!empty($profile['dateofbirth'])) {
                     <?php endif; ?>
                 </div>
             </div>
+
+          <!-- Applicant Actions -->
+<div class="section">
+    <h3><i class="fas fa-user-cog"></i> Applicant Actions</h3>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <a href="profile.php?uid=<?= htmlspecialchars($app['applicant_uid']) ?>" 
+           class="btn btn-primary"
+           style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;">
+            <i class="fas fa-user-circle"></i> View Full Profile
+        </a>
+        
+        <a href="personal_data.php?uid=<?= htmlspecialchars($app['applicant_uid']) ?>" 
+           class="btn btn-secondary"
+           style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;">
+            <i class="fas fa-id-card"></i> View Personal Data
+        </a>
+        
+        <?php if (isset($currentUser) && in_array($currentUser['role'] ?? '', ['admin', 'president'])): ?>
+        <a href="applications.php?uid=<?= htmlspecialchars($app['applicant_uid']) ?>" 
+           class="btn btn-secondary"
+           style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;">
+            <i class="fas fa-file-alt"></i> View Applications
+        </a>
+        <?php endif; ?>
+    </div>
+    <p style="margin-top: 10px; color: #666; font-size: 14px;">
+        <i class="fas fa-info-circle"></i> View detailed information about this applicant
+    </p>
+</div>
 
             <!-- Work Experience -->
             <?php if (!empty($workExperience)): ?>
