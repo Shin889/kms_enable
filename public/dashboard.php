@@ -13,7 +13,7 @@ $allowed_pages = [
     'applications_review',
     'applications_overview',
     'applications_admin',
-    'employee_tracking',
+   /*  'employee_tracking', */
     'messages',
     'vacancy_manage',
     'my_applications',
@@ -32,7 +32,7 @@ $page_titles = [
     'applications_overview' => 'Applications Overview',
     'applications_review' => 'Applications Review',
     'applications_admin' => 'Admin Applications',
-    'employee_tracking' => 'Employee Tracking',
+    /* 'employee_tracking' => 'Employee Tracking', */
     'messages' => 'Messages',
     'vacancy_manage' => 'Manage Vacancies',
     'my_applications' => 'My Applications',
@@ -134,11 +134,11 @@ if ($u['role'] === 'applicant') {
                             <div class="nav-icon"><i class="fas fa-file-alt"></i></div>
                             <div class="nav-label">Applications Overview</div>
                         </a>
-                        <a href="dashboard.php?page=employee_tracking" 
+                       <!--  <a href="dashboard.php?page=employee_tracking" 
                            class="nav-link <?= $page === 'employee_tracking' ? 'active' : '' ?>">
                             <div class="nav-icon"><i class="fas fa-users"></i></div>
                             <div class="nav-label">Employee Tracking</div>
-                        </a>
+                        </a> -->
                         <a href="dashboard.php?page=messages" 
                            class="nav-link <?= $page === 'messages' ? 'active' : '' ?>">
                             <div class="nav-icon"><i class="fas fa-envelope"></i></div>
@@ -151,11 +151,11 @@ if ($u['role'] === 'applicant') {
                             <div class="nav-icon"><i class="fas fa-file-contract"></i></div>
                             <div class="nav-label">Applications</div>
                         </a>
-                        <a href="dashboard.php?page=employee_tracking" 
+                     <!--    <a href="dashboard.php?page=employee_tracking" 
                            class="nav-link <?= $page === 'employee_tracking' ? 'active' : '' ?>">
                             <div class="nav-icon"><i class="fas fa-users"></i></div>
                             <div class="nav-label">Employee Tracking</div>
-                        </a>
+                        </a> -->
                         <a href="dashboard.php?page=messages" 
                            class="nav-link <?= $page === 'messages' ? 'active' : '' ?>">
                             <div class="nav-icon"><i class="fas fa-envelope"></i></div>
