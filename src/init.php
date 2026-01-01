@@ -9,5 +9,6 @@ require_once __DIR__ . '/csrf.php';
 require_once __DIR__ . '/mailer.php';
 require_once __DIR__ . '/notifications.php';
 require_once __DIR__ . '/upload.php';
+require_once __DIR__ . '/layout_complete.php';
 
 

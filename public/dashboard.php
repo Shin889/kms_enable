@@ -42,6 +42,20 @@ $page_titles = [
 ];
 
 $page_title = $page_titles[$page] ?? 'Dashboard';
+
+// Get the page content
+ob_start();
+$page_file = __DIR__ . "/{$page}.php";
+if (file_exists($page_file)) {
+    include $page_file;
+} else {
+    echo '<div class="alert alert-error">Page not found: ' . htmlspecialchars($page) . '</div>';
+}
+$content = ob_get_clean();
+
+// Render the complete layout
+render_layout($u, $page_title, true, $content);
+
 $user_name = htmlspecialchars(trim($u['firstName'] . ' ' . $u['lastName']));
 $user_role = htmlspecialchars(ucfirst($u['role']));
 
