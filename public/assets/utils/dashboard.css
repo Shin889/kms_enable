@@ -248,6 +248,102 @@
       transition: opacity 0.3s ease;
       white-space: nowrap;
     }
+    /* Submenu Styles */
+.nav-item.has-sub {
+    position: relative;
+}
+
+.nav-item.has-sub .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: all 0.3s;
+}
+
+.nav-item.has-sub .nav-link:hover {
+    background-color: var(--bg-2);
+}
+
+.nav-item.has-sub.active > .nav-link {
+    background-color: var(--primary);
+    color: white;
+}
+
+.nav-item.has-sub .menu-caret {
+    transition: transform 0.3s;
+    font-size: 12px;
+}
+
+.nav-item.has-sub.open .menu-caret {
+    transform: rotate(180deg);
+}
+
+.nav-item.has-sub .submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background-color: var(--bg-1);
+}
+
+.nav-item.has-sub.open .submenu {
+    max-height: 1000px;
+}
+.submenu-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px 10px 48px;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.submenu-link:hover {
+    background-color: var(--bg-2);
+    border-left-color: var(--primary);
+}
+
+.submenu-link.active {
+    background-color: var(--bg-2);
+    border-left-color: var(--primary);
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.submenu-icon {
+    width: 20px;
+    margin-right: 12px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.submenu-label {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* Collapsed sidebar adjustments */
+.sidebar.collapsed .nav-item.has-sub .menu-caret {
+    display: none;
+}
+
+.sidebar.collapsed .submenu {
+    display: none !important;
+}
+
+.sidebar.collapsed .nav-item.has-sub:hover .submenu {
+    display: block !important;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    min-width: 220px;
+    background-color: var(--bg-3);
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
 
     .sidebar.collapsed .nav-label {
       opacity: 0;
@@ -579,4 +675,14 @@
     width: 32px;
     height: 32px;
     font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .sidebar.mobile-open .nav-item.has-sub .submenu {
+        max-height: 1000px;
+    }
+    
+    .sidebar:not(.mobile-open) .nav-item.has-sub .submenu {
+        max-height: 0;
+    }
 }

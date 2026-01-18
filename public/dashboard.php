@@ -18,7 +18,15 @@ $allowed_pages = [
     'vacancy_manage',
     'my_applications',
     'approvals',
-    'personal_data'
+    'personal_data',
+    'personal_information', 
+    'family_background', 
+    'educational_background',
+    'civil_service_eligibility',
+    'work_experience',  
+    'voluntary_work',
+    'learning_and_development',
+    'other_information'
 ];
 
 $page = $_GET['page'] ?? 'vacancies';
@@ -38,7 +46,15 @@ $page_titles = [
     'my_applications' => 'My Applications',
     'profile' => 'My Profile',
     'approvals' => 'Pending Approvals',
-    'personal_data' => 'Personal Data'
+    'personal_data' => 'Personal Data',
+    'personal_information' => 'Personal Information',
+    'family_background' => 'Family Background',
+    'educational_background' => 'Educational Background',
+    'civil_service_eligibility' => 'Civil Service Eligibility',
+    'work_experience' => 'Work Experience',
+    'voluntary_work' => 'Voluntary Work',
+    'learning_and_development' => 'Learning and Development',
+    'other_information' => 'Other Information'
 ];
 
 $page_title = $page_titles[$page] ?? 'Dashboard';
@@ -173,11 +189,62 @@ if ($u['role'] === 'applicant') {
                             <div class="nav-icon"><i class="fas fa-file-alt"></i></div>
                             <div class="nav-label">My Applications</div>
                         </a>
-                        <a href="dashboard.php?page=personal_data" 
+                        <!-- <a href="dashboard.php?page=personal_data" 
                             class="nav-link <?= $page === 'personal_data' ? 'active' : '' ?>">
                                 <div class="nav-icon"><i class="fas fa-user-tie"></i></div>
                                 <div class="nav-label">Personal Data</div>
-                            </a>
+                            </a> -->
+                        <div class="nav-item has-sub <?= in_array($page, ['personal_data', 'personal_information', 'family_background', 'educational_background', 'civil_service_eligibility', 'work_experience', 'voluntary_work', 'learning_and_development', 'other_information']) ? 'active open' : '' ?>">
+                    <a href="javascript:;" class="nav-link menu-toggle">
+                        <div class="nav-icon"><i class="fas fa-user-tie"></i></div>
+                        <div class="nav-label">Personal Data</div>
+                        <div class="menu-caret">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </a>
+                    <div class="submenu">
+                        <a href="dashboard.php?page=personal_information" 
+                           class="submenu-link <?= $page === 'personal_information' ? 'active' : '' ?>">
+                            <div class="submenu-icon"><i class="fas fa-user"></i></div>
+                            <div class="submenu-label">Personal Information</div>
+                        </a>
+                        <a href="dashboard.php?page=family_background" 
+                           class="submenu-link <?= $page === 'family_background' ? 'active' : '' ?>">
+                            <div class="submenu-icon"><i class="fas fa-user-friends"></i></div>
+                            <div class="submenu-label">Family Background</div>
+                        </a>
+                        <a href="dashboard.php?page=educational_background" 
+                           class="submenu-link <?= $page === 'educational_background' ? 'active' : '' ?>">
+                            <div class="submenu-icon"><i class="fas fa-school"></i></div>
+                            <div class="submenu-label">Educational Background</div>
+                        </a>
+                        <a href="dashboard.php?page=civil_service_eligibility" 
+                           class="submenu-link <?= $page === 'civil_service_eligibility' ? 'active' : '' ?>">
+                            <div class="submenu-icon"><i class="fas fa-id-card"></i></div>
+                            <div class="submenu-label">Civil Service Eligibility</div>
+                        </a>
+                        <a href="dashboard.php?page=work_experience" 
+                           class="submenu-link <?= $page === 'work_experience' ? 'active' : '' ?>">
+                            <div class="submenu-icon"><i class="fas fa-briefcase"></i></div>
+                            <div class="submenu-label">Work Experience</div>
+                        </a>
+                        <a href="dashboard.php?page=voluntary_work" 
+                           class="submenu-link <?= $page === 'voluntary_work' ? 'active' : '' ?>">
+                            <div class="submenu-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                            <div class="submenu-label">Voluntary Work</div>
+                        </a>
+                        <a href="dashboard.php?page=learning_and_development" 
+                           class="submenu-link <?= $page === 'learning_and_development' ? 'active' : '' ?>">
+                            <div class="submenu-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                            <div class="submenu-label">Learning & Development</div>
+                        </a>
+                        <a href="dashboard.php?page=other_information" 
+                           class="submenu-link <?= $page === 'other_information' ? 'active' : '' ?>">
+                            <div class="submenu-icon"><i class="fas fa-info-circle"></i></div>
+                            <div class="submenu-label">Other Information</div>
+                        </a>
+                    </div>
+                </div>
                        
                     <?php endif; ?>
                 </div>
@@ -264,74 +331,170 @@ if ($u['role'] === 'applicant') {
     </main>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    
+    // Check for saved sidebar state
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (isCollapsed) {
+        sidebar.classList.add('collapsed');
+        sidebarToggle.querySelector('i').classList.remove('fa-chevron-left');
+        sidebarToggle.querySelector('i').classList.add('fa-chevron-right');
+    }
+    
+    // Toggle sidebar on desktop
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('collapsed');
         
-        // Check for saved sidebar state
-        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-        if (isCollapsed) {
-            sidebar.classList.add('collapsed');
-            sidebarToggle.querySelector('i').classList.remove('fa-chevron-left');
-            sidebarToggle.querySelector('i').classList.add('fa-chevron-right');
-        }
-        
-        // Toggle sidebar on desktop
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
+        // Update toggle icon
+        const icon = this.querySelector('i');
+        if (sidebar.classList.contains('collapsed')) {
+            icon.classList.remove('fa-chevron-left');
+            icon.classList.add('fa-chevron-right');
+            localStorage.setItem('sidebarCollapsed', 'true');
             
-            // Update toggle icon
-            const icon = this.querySelector('i');
-            if (sidebar.classList.contains('collapsed')) {
-                icon.classList.remove('fa-chevron-left');
-                icon.classList.add('fa-chevron-right');
-                localStorage.setItem('sidebarCollapsed', 'true');
-            } else {
-                icon.classList.remove('fa-chevron-right');
-                icon.classList.add('fa-chevron-left');
-                localStorage.setItem('sidebarCollapsed', 'false');
-            }
-        });
+            // Close all submenus when collapsing sidebar
+            closeAllSubmenus();
+        } else {
+            icon.classList.remove('fa-chevron-right');
+            icon.classList.add('fa-chevron-left');
+            localStorage.setItem('sidebarCollapsed', 'false');
+        }
+    });
+    
+    // Toggle mobile menu
+    mobileMenuToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('mobile-open');
         
-        // Toggle mobile menu
-        mobileMenuToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('mobile-open');
-        });
-        
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!sidebar.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
-                sidebar.classList.remove('mobile-open');
-            }
-        });
-        
-        // Close mobile menu on resize to desktop
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 1024) {
-                sidebar.classList.remove('mobile-open');
-            }
-        });
+        // Close all submenus when closing mobile menu
+        if (!sidebar.classList.contains('mobile-open')) {
+            closeAllSubmenus();
+        }
+    });
+    
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!sidebar.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+            sidebar.classList.remove('mobile-open');
+            closeAllSubmenus();
+        }
+    });
+    
+    // Close mobile menu on resize to desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 1024) {
+            sidebar.classList.remove('mobile-open');
+            closeAllSubmenus();
+        }
         
         // Auto-collapse sidebar on mobile
         if (window.innerWidth <= 768) {
-            sidebar.classList.add('collapsed');
-            localStorage.setItem('sidebarCollapsed', 'true');
-        }
-        
-        // Fix for applicant pages
-        const pageContent = document.querySelector('.page-content');
-        if (pageContent && pageContent.innerHTML.trim() === '') {
-            // If content is empty, show a message
-            pageContent.innerHTML = `
-                <div class="alert alert-info">
-                    <h3>Welcome, <?= $user_name ?>!</h3>
-                    <p>Please select a page from the sidebar to get started.</p>
-                </div>
-            `;
+            if (!sidebar.classList.contains('collapsed')) {
+                sidebar.classList.add('collapsed');
+                sidebarToggle.querySelector('i').classList.remove('fa-chevron-left');
+                sidebarToggle.querySelector('i').classList.add('fa-chevron-right');
+                localStorage.setItem('sidebarCollapsed', 'true');
+            }
+            closeAllSubmenus();
+        } else {
+            // On desktop, only collapse if previously saved as collapsed
+            if (localStorage.getItem('sidebarCollapsed') !== 'true') {
+                sidebar.classList.remove('collapsed');
+                sidebarToggle.querySelector('i').classList.remove('fa-chevron-right');
+                sidebarToggle.querySelector('i').classList.add('fa-chevron-left');
+            }
         }
     });
-  </script>
+    
+    // Auto-collapse sidebar on mobile (initial load)
+    if (window.innerWidth <= 768) {
+        sidebar.classList.add('collapsed');
+        localStorage.setItem('sidebarCollapsed', 'true');
+    }
+    
+    // Fix for applicant pages
+    const pageContent = document.querySelector('.page-content');
+    if (pageContent && pageContent.innerHTML.trim() === '') {
+        // If content is empty, show a message
+        pageContent.innerHTML = `
+            <div class="alert alert-info">
+                <h3>Welcome, <?= $user_name ?>!</h3>
+                <p>Please select a page from the sidebar to get started.</p>
+            </div>
+        `;
+    }
+    
+    // SUBMENU FUNCTIONALITY
+    
+    // Toggle submenus
+    document.querySelectorAll('.nav-item.has-sub .menu-toggle').forEach(function(toggle) {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const parent = this.closest('.nav-item.has-sub');
+            const wasOpen = parent.classList.contains('open');
+            
+            // Close all other submenus first
+            closeAllSubmenus();
+            
+            // If it wasn't open, open it (toggle behavior)
+            if (!wasOpen) {
+                parent.classList.add('open');
+            }
+            
+            // For mobile, ensure sidebar stays open when interacting with submenu
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('mobile-open');
+            }
+        });
+    });
+    
+    // Close submenus when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        if (window.innerWidth <= 768) {
+            if (!event.target.closest('.nav-item.has-sub')) {
+                closeAllSubmenus();
+            }
+        } else {
+            // On desktop, close submenus when clicking outside, unless sidebar is collapsed
+            if (!sidebar.classList.contains('collapsed') && 
+                !event.target.closest('.nav-item.has-sub')) {
+                closeAllSubmenus();
+            }
+        }
+    });
+    
+    // Function to close all submenus
+    function closeAllSubmenus() {
+        document.querySelectorAll('.nav-item.has-sub.open').forEach(function(item) {
+            item.classList.remove('open');
+        });
+    }
+    
+    // Auto-open parent menu if child is active
+    document.querySelectorAll('.submenu-link.active').forEach(function(activeLink) {
+        const parentItem = activeLink.closest('.nav-item.has-sub');
+        if (parentItem && !parentItem.classList.contains('open')) {
+            parentItem.classList.add('open');
+        }
+    });
+    
+    // Prevent submenu links from closing sidebar on mobile
+    document.querySelectorAll('.submenu-link').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) {
+                // Keep sidebar open on mobile for better UX
+                // sidebar.classList.remove('mobile-open');
+                closeAllSubmenus();
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>
