@@ -47,14 +47,14 @@ $page_titles = [
     'profile' => 'My Profile',
     'approvals' => 'Pending Approvals',
     'personal_data' => 'Personal Data',
-    'personal_information' => 'Personal Information',
-    'family_background' => 'Family Background',
-    'educational_background' => 'Educational Background',
+    'personal_information' => 'Personal Information', //done
+    'family_background' => 'Family Background', //done
+    'educational_background' => 'Educational Background', //done 
     'civil_service_eligibility' => 'Civil Service Eligibility',
     'work_experience' => 'Work Experience',
-    'voluntary_work' => 'Voluntary Work',
+    'voluntary_work' => 'Voluntary Work', //done 
     'learning_and_development' => 'Learning and Development',
-    'other_information' => 'Other Information'
+    'other_information' => 'Other Information' //done
 ];
 
 $page_title = $page_titles[$page] ?? 'Dashboard';
