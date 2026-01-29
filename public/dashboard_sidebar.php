@@ -1,6 +1,4 @@
 <?php
-// dashboard_sidebar.php - Reusable sidebar functions
-
 function get_profile_picture_url($user) {
     $profilePictureUrl = '';
     if ($user['role'] === 'applicant') {
