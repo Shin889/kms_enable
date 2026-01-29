@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../src/init.php';
+require_once __DIR__ . '/dashboard_sidebar.php';
+$page_title = "Pending Approvals";
 $me = current_user();
 if (!$me || $me['role'] !== 'admin') {
     $_SESSION['flash_error'] = 'Access denied. Admin privileges required.';
@@ -64,136 +66,149 @@ unset($_SESSION['flash'], $_SESSION['flash_error']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pending Approvals | Admin</title>
+    <link rel="stylesheet" href="assets/utils/dashboard.css">
     <link rel="stylesheet" href="assets/utils/approvals.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h2>Pending President Approvals</h2>
-            <p class="subtitle">Review and approve new HRMPSB staff account registrations</p>
+    <div class="dashboard-layout">
+        <?php render_sidebar($user, 'approvals'); ?>
+        
+        <main class="tri-content">
+            <?php render_topbar($user, $page_title); ?>
             
-            <div class="stats-container">
-                <div class="stat-card total">
-                    <div class="stat-number"><?= $stats['total'] ?></div>
-                    <div class="stat-label">Total Pending</div>
-                </div>
-                <div class="stat-card today">
-                    <div class="stat-number"><?= $stats['today'] ?></div>
-                    <div class="stat-label">Today</div>
-                </div>
-                <div class="stat-card week">
-                    <div class="stat-number"><?= $stats['week'] ?></div>
-                    <div class="stat-label">Last 7 Days</div>
+            <div class="content-wrapper">
+                <div class="page-content"></div>
+                    <div class="container">
+                        <div class="header">
+                            <h2>Pending President Approvals</h2>
+                            <p class="subtitle">Review and approve new HRMPSB staff account registrations</p>
+                            
+                            <div class="stats-container">
+                                <div class="stat-card total">
+                                    <div class="stat-number"><?= $stats['total'] ?></div>
+                                    <div class="stat-label">Total Pending</div>
+                                </div>
+                                <div class="stat-card today">
+                                    <div class="stat-number"><?= $stats['today'] ?></div>
+                                    <div class="stat-label">Today</div>
+                                </div>
+                                <div class="stat-card week">
+                                    <div class="stat-number"><?= $stats['week'] ?></div>
+                                    <div class="stat-label">Last 7 Days</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <?php if ($flash): ?>
+                            <div class="flash-message flash-success">
+                                <i class="fas fa-check-circle"></i>
+                                <div><?= htmlspecialchars($flash) ?></div>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($flash_error): ?>
+                            <div class="flash-message flash-error">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <div><?= htmlspecialchars($flash_error) ?></div>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="approvals-container">
+                            <div class="table-header">
+                                <h3><i class="fas fa-user-clock"></i> Pending President Accounts</h3>
+                                <div class="table-count"><?= $stats['total'] ?> accounts awaiting approval</div>
+                            </div>
+                            
+                            <?php if (empty($pending)): ?>
+                                <div class="no-pending">
+                                    <div class="no-pending-icon"><i class="fas fa-check-circle"></i></div>
+                                    <h4>All Clear!</h4>
+                                    <p>There are no pending president accounts awaiting approval.</p>
+                                    <p>New president registrations will appear here for review.</p>
+                                </div>
+                            <?php else: ?>
+                                <table class="approvals-table">
+                                    <thead>
+                                        <tr>
+                                            <th>User ID</th>
+                                            <th>Applicant</th>
+                                            <th>Registration Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($pending as $president): 
+                                            $firstName = htmlspecialchars($president['firstName']);
+                                            $lastName = htmlspecialchars($president['lastName']);
+                                            $fullName = $firstName . ' ' . $lastName;
+                                            $email = htmlspecialchars($president['email']);
+                                            $createdAt = date('M j, Y', strtotime($president['created_at']));
+                                            $initials = strtoupper(substr($firstName, 0, 1) . substr($lastName, 0, 1));
+                                        ?>
+                                            <tr>
+                                                <td>
+                                                    <span class="user-id">#<?= $president['uid'] ?></span>
+                                                </td>
+                                                <td>
+                                                    <div class="user-info">
+                                                        <div class="user-avatar"><?= $initials ?></div>
+                                                        <div class="user-details">
+                                                            <div class="user-name"><?= $fullName ?></div>
+                                                            <div class="user-email"><?= $email ?></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="date-joined">
+                                                        <i class="fas fa-calendar-alt"></i>
+                                                        <?= $createdAt ?>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="action-buttons">
+                                                        <form method="post" style="display: inline;">
+                                                            <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+                                                            <input type="hidden" name="uid" value="<?= $president['uid'] ?>">
+                                                            <button type="submit" name="action" value="approve" 
+                                                                    class="btn btn-success"
+                                                                    onclick="return confirm('Approve president account for <?= addslashes($fullName) ?>?')">
+                                                                <i class="fas fa-check"></i> Approve
+                                                            </button>
+                                                        </form>
+                                                        <form method="post" style="display: inline;">
+                                                            <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
+                                                            <input type="hidden" name="uid" value="<?= $president['uid'] ?>">
+                                                            <button type="submit" name="action" value="reject" 
+                                                                    class="btn btn-danger"
+                                                                    onclick="return confirm('Reject president account for <?= addslashes($fullName) ?>? This action cannot be undone.')">
+                                                                <i class="fas fa-times"></i> Reject
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- <div class="action-buttons-footer">
+                            <a href="dashboard.php" class="action-link">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                            <a href="user_management.php" class="action-link">
+                                <i class="fas fa-users-cog"></i> User Management
+                            </a>
+                            <a href="vacancy_manage.php" class="action-link primary">
+                                <i class="fas fa-briefcase"></i> Manage Vacancies
+                            </a>
+                        </div> -->
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <?php if ($flash): ?>
-            <div class="flash-message flash-success">
-                <i class="fas fa-check-circle"></i>
-                <div><?= htmlspecialchars($flash) ?></div>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($flash_error): ?>
-            <div class="flash-message flash-error">
-                <i class="fas fa-exclamation-circle"></i>
-                <div><?= htmlspecialchars($flash_error) ?></div>
-            </div>
-        <?php endif; ?>
-
-        <div class="approvals-container">
-            <div class="table-header">
-                <h3><i class="fas fa-user-clock"></i> Pending President Accounts</h3>
-                <div class="table-count"><?= $stats['total'] ?> accounts awaiting approval</div>
-            </div>
-            
-            <?php if (empty($pending)): ?>
-                <div class="no-pending">
-                    <div class="no-pending-icon"><i class="fas fa-check-circle"></i></div>
-                    <h4>All Clear!</h4>
-                    <p>There are no pending president accounts awaiting approval.</p>
-                    <p>New president registrations will appear here for review.</p>
-                </div>
-            <?php else: ?>
-                <table class="approvals-table">
-                    <thead>
-                        <tr>
-                            <th>User ID</th>
-                            <th>Applicant</th>
-                            <th>Registration Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($pending as $president): 
-                            $firstName = htmlspecialchars($president['firstName']);
-                            $lastName = htmlspecialchars($president['lastName']);
-                            $fullName = $firstName . ' ' . $lastName;
-                            $email = htmlspecialchars($president['email']);
-                            $createdAt = date('M j, Y', strtotime($president['created_at']));
-                            $initials = strtoupper(substr($firstName, 0, 1) . substr($lastName, 0, 1));
-                        ?>
-                            <tr>
-                                <td>
-                                    <span class="user-id">#<?= $president['uid'] ?></span>
-                                </td>
-                                <td>
-                                    <div class="user-info">
-                                        <div class="user-avatar"><?= $initials ?></div>
-                                        <div class="user-details">
-                                            <div class="user-name"><?= $fullName ?></div>
-                                            <div class="user-email"><?= $email ?></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="date-joined">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <?= $createdAt ?>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <form method="post" style="display: inline;">
-                                            <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
-                                            <input type="hidden" name="uid" value="<?= $president['uid'] ?>">
-                                            <button type="submit" name="action" value="approve" 
-                                                    class="btn btn-success"
-                                                    onclick="return confirm('Approve president account for <?= addslashes($fullName) ?>?')">
-                                                <i class="fas fa-check"></i> Approve
-                                            </button>
-                                        </form>
-                                        <form method="post" style="display: inline;">
-                                            <input type="hidden" name="_csrf" value="<?= csrf_token(); ?>">
-                                            <input type="hidden" name="uid" value="<?= $president['uid'] ?>">
-                                            <button type="submit" name="action" value="reject" 
-                                                    class="btn btn-danger"
-                                                    onclick="return confirm('Reject president account for <?= addslashes($fullName) ?>? This action cannot be undone.')">
-                                                <i class="fas fa-times"></i> Reject
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
-        </div>
-
-        <!-- <div class="action-buttons-footer">
-            <a href="dashboard.php" class="action-link">
-                <i class="fas fa-arrow-left"></i> Back to Dashboard
-            </a>
-            <a href="user_management.php" class="action-link">
-                <i class="fas fa-users-cog"></i> User Management
-            </a>
-            <a href="vacancy_manage.php" class="action-link primary">
-                <i class="fas fa-briefcase"></i> Manage Vacancies
-            </a>
-        </div> -->
+        </main>
     </div>
 
     <div id="approveModal" class="modal-overlay">
