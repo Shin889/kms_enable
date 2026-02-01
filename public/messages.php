@@ -4,10 +4,18 @@ require_role(['president','admin']);
 csrf_check();
 
 if ($_SERVER['REQUEST_METHOD']==='POST') {
+    // Validate recipient is selected
+    if (empty($_POST['recipient_uid'])) {
+        $_SESSION['flash'] = 'Error: Please select a recipient';
+        redirect('messages.php');
+        exit;
+    }
+    
     $uid = $_POST['recipient_uid'];
     $subject = $_POST['subject'];
     $body = $_POST['body'];
     $type = $_POST['type'] ?: 'general';
+    
     notify_user($uid, $type, $subject, nl2br(htmlspecialchars($body)), $_SESSION['uid']);
     
     $_SESSION['flash'] = 'Message sent successfully!';
@@ -52,10 +60,10 @@ unset($_SESSION['flash']);
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <!-- <div class="header">
             <h3>Messages</h3>
             <p class="subtitle">Send notifications and view message history</p>
-        </div>
+        </div> -->
 
         <?php if ($flash): ?>
             <div class="flash-message">
@@ -72,14 +80,14 @@ unset($_SESSION['flash']);
                     
                     <div class="form-group">
                         <label>Recipient <span>*</span></label>
-                        <select name="recipient_uid" required style="display: none;">
+                        <!-- <select name="recipient_uid" required style="display: none;">
                             <option value="">Select recipient...</option>
                             <?php foreach ($users as $user): ?>
                                 <option value="<?= $user['uid'] ?>">
                                     <?= htmlspecialchars($user['firstName'] . ' ' . $user['lastName'] . ' (' . $user['email'] . ')') ?>
                                 </option>
                             <?php endforeach; ?>
-                        </select>
+                        </select> -->
                         
                         <div class="user-select" id="userSelect">
                             <?php foreach ($users as $user): 
@@ -92,7 +100,10 @@ unset($_SESSION['flash']);
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                        <input type="hidden" name="recipient_uid" id="recipientUid" required>
+                        <input type="hidden" name="recipient_uid" id="recipientUid">
+                        <div id="selectedUserDisplay" class="selected-user-display" style="display:none; padding:10px; background:#f5f5f5; border-radius:8px; margin-top:8px;">
+                            <strong>Selected:</strong> <span id="selectedUserName"></span>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -211,69 +222,123 @@ unset($_SESSION['flash']);
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // User selection
-            const userOptions = document.querySelectorAll('.user-option');
-            const recipientUidInput = document.getElementById('recipientUid');
+document.addEventListener('DOMContentLoaded', function() {
+    // User selection
+    const userOptions = document.querySelectorAll('.user-option');
+    const recipientUidInput = document.getElementById('recipientUid');
+    const selectedUserDisplay = document.getElementById('selectedUserDisplay');
+    const selectedUserName = document.getElementById('selectedUserName');
+    
+    // Add "required" indicator
+    const recipientLabel = document.querySelector('label[for="recipientUid"]');
+    if (recipientLabel) {
+        recipientLabel.innerHTML += ' <span style="color:red">*</span>';
+    }
+    
+    userOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove selected class from all options
+            userOptions.forEach(opt => opt.classList.remove('selected'));
             
+            // Add selected class to clicked option
+            this.classList.add('selected');
+            
+            // Set the hidden input value
+            const uid = this.getAttribute('data-uid');
+            recipientUidInput.value = uid;
+            
+            // Show selected user display
+            const name = this.querySelector('.user-name').textContent;
+            const email = this.querySelector('.user-email').textContent;
+            selectedUserName.textContent = name + ' (' + email + ')';
+            selectedUserDisplay.style.display = 'block';
+            
+            // Clear any validation error
+            recipientUidInput.setCustomValidity('');
+        });
+    });
+    
+    // Message type selection
+    const typeOptions = document.querySelectorAll('.type-option');
+    typeOptions.forEach(option => {
+        const radio = option.querySelector('input[type="radio"]');
+        
+        option.addEventListener('click', function() {
+            // Remove selected class from all options
+            typeOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selected class to clicked option
+            this.classList.add('selected');
+            
+            // Check the radio button
+            radio.checked = true;
+        });
+    });
+    
+    // Auto-expand textarea
+    const textarea = document.getElementById('body');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+    
+    // Filter users
+    const userSelectContainer = document.getElementById('userSelect');
+    if (userSelectContainer) {
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Search users...';
+        searchInput.style.cssText = 'width:100%; padding:12px 16px; margin-bottom:12px; border-radius:12px; border:1px solid #ddd; font-size:14px;';
+        userSelectContainer.parentNode.insertBefore(searchInput, userSelectContainer);
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
             userOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    // Remove selected class from all options
-                    userOptions.forEach(opt => opt.classList.remove('selected'));
-                    
-                    // Add selected class to clicked option
-                    this.classList.add('selected');
-                    
-                    // Set the hidden input value
-                    recipientUidInput.value = this.getAttribute('data-uid');
-                });
-            });
-            
-            // Message type selection
-            const typeOptions = document.querySelectorAll('.type-option');
-            typeOptions.forEach(option => {
-                const radio = option.querySelector('input[type="radio"]');
-                
-                option.addEventListener('click', function() {
-                    // Remove selected class from all options
-                    typeOptions.forEach(opt => opt.classList.remove('selected'));
-                    
-                    // Add selected class to clicked option
-                    this.classList.add('selected');
-                    
-                    // Check the radio button
-                    radio.checked = true;
-                });
-            });
-            
-            // Auto-expand textarea
-            const textarea = document.getElementById('body');
-            textarea.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-            
-            // Filter users
-            const userSelectContainer = document.getElementById('userSelect');
-            const searchInput = document.createElement('input');
-            searchInput.type = 'text';
-            searchInput.placeholder = 'Search users...';
-            searchInput.style.cssText = 'width:100%; padding:12px 16px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border); font-size:14px;';
-            userSelectContainer.parentNode.insertBefore(searchInput, userSelectContainer);
-            
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                userOptions.forEach(option => {
-                    const name = option.querySelector('.user-name').textContent.toLowerCase();
-                    const email = option.querySelector('.user-email').textContent.toLowerCase();
-                    if (name.includes(searchTerm) || email.includes(searchTerm)) {
-                        option.style.display = '';
-                    } else {
-                        option.style.display = 'none';
-                    }
-                });
+                const name = option.querySelector('.user-name').textContent.toLowerCase();
+                const email = option.querySelector('.user-email').textContent.toLowerCase();
+                if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
             });
         });
-    </script>
+    }
+    
+    // Form validation before submit
+    const form = document.querySelector('.message-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!recipientUidInput.value) {
+                e.preventDefault();
+                alert('Please select a recipient');
+                // Scroll to recipient section
+                document.querySelector('.user-select').scrollIntoView({ behavior: 'smooth' });
+                return false;
+            }
+            
+            // Validate subject
+            const subject = document.getElementById('subject');
+            if (!subject || !subject.value.trim()) {
+                e.preventDefault();
+                alert('Please enter a subject');
+                subject.focus();
+                return false;
+            }
+            
+            // Validate body
+            const body = document.getElementById('body');
+            if (!body || !body.value.trim()) {
+                e.preventDefault();
+                alert('Please enter a message body');
+                body.focus();
+                return false;
+            }
+        });
+    }
+});
+</script>
 </body>
 </html>
