@@ -1,14 +1,14 @@
 <?php 
 require_once __DIR__ . '/../src/init.php'; 
-require_once __DIR__ . '/dashboard_sidebar.php';  
+// require_once __DIR__ . '/dashboard_sidebar.php';  
 require_role(['applicant']);
 
 $st = db()->prepare("SELECT a.*, j.job_title, j.candidate_slot FROM applications a JOIN job_vacancies j ON a.vacancy_id=j.vacancy_id WHERE a.applicant_uid=? ORDER BY a.date_applied DESC");
 $st->execute([$_SESSION['uid']]); 
 $apps = $st->fetchAll();
 
-$page_title = "My Applications";
-$user = current_user(); 
+// $page_title = "My Applications";
+// $user = current_user(); 
 ?>
 
 <!doctype html>
@@ -17,19 +17,19 @@ $user = current_user();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Applications | KMS Enable Recruitment</title>
+    <!-- <link rel="stylesheet" href="assets/utils/dashboard.css"> -->
     <link rel="stylesheet" href="assets/utils/my_applications.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="dashboard-layout">
+    <!-- <div class="dashboard-layout">
         <?php render_sidebar($user, 'my_applications'); ?>
         
         <main class="tri-content">
             <?php render_topbar($user, $page_title); ?>
             
-            <div class="content-wrapper">
-                <div class="page-content"></div>
-                    <div class="container">
+            <div class="content-wrapper"> -->
+                <div class="container">
                         <div class="header">
                             <h3>My Applications</h3>
                             <p class="subtitle">Track the status of your job applications</p>
@@ -166,10 +166,9 @@ $user = current_user();
                         </div>
                         <?php endif; ?> -->
                     </div>
-                </div>
-            </div>
+                <!-- </div>
         </main>
-    </div>       
+    </div>        -->
     <style>
         .container {
             max-width: 1200px;
