@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../src/init.php';
 require_role(['president']);
+require_once __DIR__ . '/dashboard_sidebar.php';
+
+$page_title = "Applications Review";
+$user = current_user();
 csrf_check();
 
 function download_url($path) {
@@ -70,6 +74,7 @@ $count = count($apps);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Applications Review | President</title>
+    <link rel="stylesheet" href="assets/utils/dashboard.css">
     <link rel="stylesheet" href="assets/utils/applications_review.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -133,161 +138,174 @@ $count = count($apps);
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="breadcrumb">
-                <a href="applications_overview.php"><i class="fas fa-arrow-left"></i> Back to Overview</a>
-                <?php if ($job_id > 0): ?>
-                    <span>›</span>
-                    <span>Job: <?= $job_title ?></span>
-                <?php endif; ?>
-            </div>
+    <div class="dashboard-layout">
+        <?php render_sidebar($user, 'applications_overview'); ?>
+        
+        <main class="tri-content">
+            <?php 
+            $topbar_title = $job_id > 0 ? "Applications for: " . $job_title : "Applications Review";
+            render_topbar($user, $topbar_title); 
+            ?>
             
-            <h3><i class="fas fa-user-tie"></i> Applications Review - President</h3>
-            <p class="subtitle">
-                View all applications. Applications are now approved/rejected by Admin only.
-                <?php if ($job_id > 0): ?>
-                    <span class="filter-badge">
-                        <i class="fas fa-filter"></i> Filtered by: <?= $job_title ?>
-                    </span>
-                <?php endif; ?>
-            </p>
-            
-            <div class="stats-container">
-                <div class="stat-card total">
-                    <div class="stat-number"><?= $count ?></div>
-                    <div class="stat-label">
-                        <?= $job_id > 0 ? 'Applications for Job' : 'Total Applications' ?>
-                    </div>
-                </div>
-                
-                <?php if ($job_id > 0): ?>
-                <a href="applications_review.php" class="stat-card view-all" style="text-decoration: none; color: inherit;">
-                    <div class="stat-number"><i class="fas fa-eye"></i></div>
-                    <div class="stat-label">View All</div>
-                </a>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <?php if (!empty($apps)): ?>
-        <div class="applications-container">
-            <div class="table-header">
-                <h4><i class="fas fa-list"></i> 
-                    <?php if ($job_id > 0): ?>
-                        Applications for "<?= $job_title ?>" (<?= $count ?>)
-                    <?php else: ?>
-                        All Applications (<?= $count ?>)
-                    <?php endif; ?>
-                </h4>
-            </div>
-            <table class="applications-table">
-                <thead>
-                    <tr>
-                        <th>App ID</th>
-                        <th>Applicant</th>
-                        <th>Job Position</th>
-                        <th>Status</th>
-                        <th>Date Applied</th>
-                        <th>Documents</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($apps as $a): 
-                        $statusClass = 'status-' . $a['status'];
-                        $applicantName = trim(htmlspecialchars($a['firstName'] . ' ' . $a['lastName']));
-                        $initials = strtoupper(substr($a['firstName'], 0, 1) . substr($a['lastName'], 0, 1));
-                        $email = htmlspecialchars($a['applicant_email']);
+            <div class="content-wrapper">
+                <div class="container">
+                    <div class="header">
+                        <div class="breadcrumb">
+                            <a href="applications_overview.php"><i class="fas fa-arrow-left"></i> Back to Overview</a>
+                            <?php if ($job_id > 0): ?>
+                                <span>›</span>
+                                <span>Job: <?= $job_title ?></span>
+                            <?php endif; ?>
+                        </div>
                         
-                        // Status text formatting
-                        $statusText = str_replace('_', ' ', $a['status']);
-                        if ($statusText === 'approved by president') {
-                            $statusText = 'Pending Admin Approval';
-                        }
-                    ?>
-                        <tr>
-                            <td>#<?= $a['application_id'] ?></td>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <?php if (!empty($a['profile_picture'])): 
-                                        $profile_pic = htmlspecialchars($a['profile_picture']);
-                                        // Remove 'uploads/' prefix if it exists
-                                        if (strpos($profile_pic, 'uploads/') === 0) {
-                                            $profile_pic = substr($profile_pic, 8);
-                                        }
-                                    ?>
-                                        <img src="../uploads/<?= $profile_pic ?>" 
-                                             class="applicant-avatar-small"
-                                             alt="<?= $applicantName ?>"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <?php endif; ?>
-                                    <div class="applicant-avatar-small" style="<?= !empty($a['profile_picture']) ? 'display:none;' : '' ?>">
-                                        <?= $initials ?>
-                                    </div>
-                                    <div>
-                                        <div class="applicant-name"><?= $applicantName ?></div>
-                                        <div class="applicant-email"><?= $email ?></div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <?= htmlspecialchars($a['job_title']) ?>
-                                <?php if ($job_id == 0): ?>
-                                    <br>
-                                    <small style="color: #666; font-size: 11px;">
-                                        Job ID: #<?= $a['vacancy_id'] ?>
-                                    </small>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <span class="status-badge <?= $statusClass ?>">
-                                    <?= htmlspecialchars($statusText) ?>
+                        <h3><i class="fas fa-user-tie"></i> Applications Review - President</h3>
+                        <p class="subtitle">
+                            View all applications. Applications are now approved/rejected by Admin only.
+                            <?php if ($job_id > 0): ?>
+                                <span class="filter-badge">
+                                    <i class="fas fa-filter"></i> Filtered by: <?= $job_title ?>
                                 </span>
-                            </td>
-                            <td><?= date('M j, Y', strtotime($a['date_applied'])) ?></td>
-                            <td>
-                                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                                    <?php if (!empty($a['resume_path'])): ?>
-                                        <a href="<?= htmlspecialchars(download_url($a['resume_path'])) ?>" 
-                                           target="_blank" 
-                                           class="btn btn-secondary btn-sm">
-                                            <i class="fas fa-file-pdf"></i> Resume
-                                        </a>
-                                    <?php endif; ?>
-                                    <?php if (!empty($a['cover_letter_path'])): ?>
-                                        <a href="<?= htmlspecialchars(download_url($a['cover_letter_path'])) ?>" 
-                                           target="_blank" 
-                                           class="btn btn-secondary btn-sm">
-                                            <i class="fas fa-file-alt"></i> Cover
-                                        </a>
-                                    <?php endif; ?>
+                            <?php endif; ?>
+                        </p>
+                        
+                        <div class="stats-container">
+                            <div class="stat-card total">
+                                <div class="stat-number"><?= $count ?></div>
+                                <div class="stat-label">
+                                    <?= $job_id > 0 ? 'Applications for Job' : 'Total Applications' ?>
                                 </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php else: ?>
-        <div class="applications-container">
-            <div class="no-data">
-                <div class="no-data-icon"><i class="fas fa-file-alt"></i></div>
-                <h4>No Applications Found</h4>
-                <p>
-                    <?php if ($job_id > 0): ?>
-                        No applications found for this job vacancy.
+                            </div>
+                            
+                            <?php if ($job_id > 0): ?>
+                            <a href="applications_review.php" class="stat-card view-all" style="text-decoration: none; color: inherit;">
+                                <div class="stat-number"><i class="fas fa-eye"></i></div>
+                                <div class="stat-label">View All</div>
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <?php if (!empty($apps)): ?>
+                    <div class="applications-container">
+                        <div class="table-header">
+                            <h4><i class="fas fa-list"></i> 
+                                <?php if ($job_id > 0): ?>
+                                    Applications for "<?= $job_title ?>" (<?= $count ?>)
+                                <?php else: ?>
+                                    All Applications (<?= $count ?>)
+                                <?php endif; ?>
+                            </h4>
+                        </div>
+                        <table class="applications-table">
+                            <thead>
+                                <tr>
+                                    <th>App ID</th>
+                                    <th>Applicant</th>
+                                    <th>Job Position</th>
+                                    <th>Status</th>
+                                    <th>Date Applied</th>
+                                    <th>Documents</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($apps as $a): 
+                                    $statusClass = 'status-' . $a['status'];
+                                    $applicantName = trim(htmlspecialchars($a['firstName'] . ' ' . $a['lastName']));
+                                    $initials = strtoupper(substr($a['firstName'], 0, 1) . substr($a['lastName'], 0, 1));
+                                    $email = htmlspecialchars($a['applicant_email']);
+                                    
+                                    // Status text formatting
+                                    $statusText = str_replace('_', ' ', $a['status']);
+                                    if ($statusText === 'approved by president') {
+                                        $statusText = 'Pending Admin Approval';
+                                    }
+                                ?>
+                                    <tr>
+                                        <td>#<?= $a['application_id'] ?></td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <?php if (!empty($a['profile_picture'])): 
+                                                    $profile_pic = htmlspecialchars($a['profile_picture']);
+                                                    // Remove 'uploads/' prefix if it exists
+                                                    if (strpos($profile_pic, 'uploads/') === 0) {
+                                                        $profile_pic = substr($profile_pic, 8);
+                                                    }
+                                                ?>
+                                                    <img src="../uploads/<?= $profile_pic ?>" 
+                                                        class="applicant-avatar-small"
+                                                        alt="<?= $applicantName ?>"
+                                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <?php endif; ?>
+                                                <div class="applicant-avatar-small" style="<?= !empty($a['profile_picture']) ? 'display:none;' : '' ?>">
+                                                    <?= $initials ?>
+                                                </div>
+                                                <div>
+                                                    <div class="applicant-name"><?= $applicantName ?></div>
+                                                    <div class="applicant-email"><?= $email ?></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <?= htmlspecialchars($a['job_title']) ?>
+                                            <?php if ($job_id == 0): ?>
+                                                <br>
+                                                <small style="color: #666; font-size: 11px;">
+                                                    Job ID: #<?= $a['vacancy_id'] ?>
+                                                </small>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge <?= $statusClass ?>">
+                                                <?= htmlspecialchars($statusText) ?>
+                                            </span>
+                                        </td>
+                                        <td><?= date('M j, Y', strtotime($a['date_applied'])) ?></td>
+                                        <td>
+                                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                                <?php if (!empty($a['resume_path'])): ?>
+                                                    <a href="<?= htmlspecialchars(download_url($a['resume_path'])) ?>" 
+                                                    target="_blank" 
+                                                    class="btn btn-secondary btn-sm">
+                                                        <i class="fas fa-file-pdf"></i> Resume
+                                                    </a>
+                                                <?php endif; ?>
+                                                <?php if (!empty($a['cover_letter_path'])): ?>
+                                                    <a href="<?= htmlspecialchars(download_url($a['cover_letter_path'])) ?>" 
+                                                    target="_blank" 
+                                                    class="btn btn-secondary btn-sm">
+                                                        <i class="fas fa-file-alt"></i> Cover
+                                                    </a>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                     <?php else: ?>
-                        There are no applications to view at this time.
+                    <div class="applications-container">
+                        <div class="no-data">
+                            <div class="no-data-icon"><i class="fas fa-file-alt"></i></div>
+                            <h4>No Applications Found</h4>
+                            <p>
+                                <?php if ($job_id > 0): ?>
+                                    No applications found for this job vacancy.
+                                <?php else: ?>
+                                    There are no applications to view at this time.
+                                <?php endif; ?>
+                            </p>
+                            <?php if ($job_id > 0): ?>
+                                <a href="applications_review.php" class="btn btn-primary">
+                                    <i class="fas fa-eye"></i> View All Applications
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                     <?php endif; ?>
-                </p>
-                <?php if ($job_id > 0): ?>
-                    <a href="applications_review.php" class="btn btn-primary">
-                        <i class="fas fa-eye"></i> View All Applications
-                    </a>
-                <?php endif; ?>
+                </div>
             </div>
-        </div>
-        <?php endif; ?>
+        </main>
     </div>
 
     <script>
